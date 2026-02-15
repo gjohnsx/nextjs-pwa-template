@@ -85,11 +85,7 @@ bunx vercel@latest
 bunx vercel@latest --prod
 ```
 
-Deploy button (recommended for template repos):
-
-```md
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fgjohnsx%2Fnextjs-pwa-template)
-```
 
 ## 5. Install On Phone
 
