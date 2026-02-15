@@ -2,6 +2,8 @@
 
 Clone/fork/template this repo and get a phone-installable Next.js PWA fast.
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fgjohnsx%2Fnextjs-pwa-template)
+
 ## What You Get
 
 - App Router + Next.js `16.1.6`
@@ -84,8 +86,6 @@ bunx vercel@latest link
 bunx vercel@latest
 bunx vercel@latest --prod
 ```
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fgjohnsx%2Fnextjs-pwa-template)
 
 ## 5. Install On Phone
 
