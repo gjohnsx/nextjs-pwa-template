@@ -1,0 +1,6 @@
+interface:
+  display_name: "Favicon Generator"
+  short_description: "Generate app icons and full PWA favicon packs"
+  icon_small: "./assets/favicon-generator-small.svg"
+  icon_large: "./assets/favicon-generator.png"
+  default_prompt: "Use the favicon-generator skill. Execute env loading and generation in the same shell call, then export all required PWA icon sizes."

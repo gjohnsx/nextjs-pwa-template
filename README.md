@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js PWA Template (Vercel + Bun)
 
-## Getting Started
+Clone/fork/template this repo and get a phone-installable Next.js PWA fast.
 
-First, run the development server:
+## What You Get
+
+- App Router + Next.js `16.1.6`
+- PWA manifest + app icons + install UX
+- Service worker for web push notifications
+- Optional push notification flow via Server Actions
+- shadcn/ui setup
+- Geist fonts (`GeistSans`, `GeistMono`, `GeistPixelSquare`)
+- Vercel-friendly defaults and security headers
+- Bun-first scripts
+
+## 1. Create Your Copy
+
+Use either:
+
+- GitHub `Use this template`
+- GitHub `Fork`
+- Or clone directly:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <your-repo-url>
+cd nextjs-pwa-template
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 2. Configure Environment Variables (All Optional)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy the template env file:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env.local
+```
 
-## Learn More
+Icon generation (optional):
+- set `OPENAI_API_KEY` in `.env.local`
 
-To learn more about Next.js, take a look at the following resources:
+Web push notifications (optional):
+- generate keys and paste them into `.env.local`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+bun run vapid:generate
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If you skip these, the app is still installable as a PWA.
+Only icon generation and/or push features are affected.
 
-## Deploy on Vercel
+## 3. Run Locally (HTTPS)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+bun run dev:https
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open `https://localhost:3000`.
+
+HTTPS is required for realistic PWA/push testing.
+
+## UI Stack (shadcn + Sonner + Geist)
+
+- `shadcn` is installed and already integrated with Tailwind v4.
+- Sonner toast notifications are mounted globally and used for install/push feedback.
+- Home page UI is built with shadcn primitives.
+- Shared UI defaults are set to square corners for buttons and cards.
+- Fonts come from the `geist` package (`GeistSans`, `GeistMono`, `GeistPixelSquare`).
+
+If you add new UI, prefer extending `components/ui/*` primitives instead of per-page one-off classes.
+
+## 4. Deploy to Vercel
+
+1. Push your repo to GitHub.
+2. In Vercel, click `Add New > Project` and import the repo.
+3. Keep the default Next.js build settings.
+4. Add the same env vars from `.env.local` in Project Settings > Environment Variables.
+5. Deploy.
+
+CLI alternative:
+
+```bash
+bunx vercel@latest login
+bunx vercel@latest link
+bunx vercel@latest
+bunx vercel@latest --prod
+```
+
+Deploy button (recommended for template repos):
+
+```md
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/your-repo)
+```
+
+## 5. Install On Phone
+
+- Android (Chrome): use the browser install prompt/menu.
+- iOS (Safari): tap `Share` then `Add to Home Screen`.
+
+After deployment, open your Vercel URL on your phone and install.
+
+## Project Structure
+
+- `app/`: App Router pages/layout, manifest, and Server Actions
+- `components/ui/`: Shared shadcn UI primitives
+- `public/sw.js`: Service worker
+- `next.config.ts`: Security and service-worker headers
+- `scripts/generate-vapid-keys.mjs`: VAPID key generator
+
+## Notes
+
+- Push subscriptions are stored in an HTTP-only cookie in this starter to keep setup simple.
+- For multi-user production apps, store subscriptions in a real database.
+- Replace icons/branding and app metadata before shipping.
+
+## Icon Generation (favicon-generator skill)
+
+This repo includes an agent skill (`.agents/skills/favicon-generator/`) forked from the [OpenAI Image Generation skill](https://github.com/openai/codex/tree/main/codex-rs/skills/openai-imagegen), customized for PWA app icon generation. It generates a 1024x1024 master icon via the OpenAI Image API (`gpt-image-1.5`), then exports all required favicon and PWA icon sizes.
+
+### Prerequisites
+
+- `OPENAI_API_KEY` set in `.env.local`
+- Python 3 with `openai` and `pillow` (`python3 -m pip install openai pillow`)
+
+### Usage
+
+**With Codex CLI:** Ask Codex to generate an app icon. You'll need `/approvals full-access` so the agent can hit the OpenAI API and write icon files.
+
+**With Claude Code:** Ask Claude to generate an app icon or run `/favicon-generator`. The skill handles prompt construction, API calls, and size exports automatically.
+
+**With your own source image:** Skip generation entirely — drop your image in and ask the agent to export the PWA sizes, or run the export commands from the skill's Workflow B.
+
+### What it produces
+
+| File | Size | Purpose |
+|:-----|:-----|:--------|
+| `public/icon-512x512.png` | 512x512 | Standard PWA icon |
+| `public/icon-192x192.png` | 192x192 | Standard PWA icon |
+| `public/icon-maskable-512x512.png` | 512x512 | Android adaptive icon (maskable) |
+| `public/icon-maskable-192x192.png` | 192x192 | Android adaptive icon (maskable) |
+| `public/apple-touch-icon.png` | 180x180 | iOS home screen |
+| `public/badge-72x72.png` | 72x72 | Notification badge |
+| `app/favicon.ico` | 16–64 | Browser tab favicon |
