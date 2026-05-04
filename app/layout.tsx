@@ -7,12 +7,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Next.js PWA Template",
-    template: "%s | Next.js PWA Template",
+    default: "Yen Sense",
+    template: "%s | Yen Sense",
   },
   description:
-    "Clone-and-deploy Next.js PWA starter for Vercel with install prompt and optional push notifications.",
-  applicationName: "Next.js PWA Template",
+    "A fast Japan travel PWA for converting yen to USD and practicing mental exchange-rate estimates.",
+  applicationName: "Yen Sense",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "NextPWA",
+    title: "Yen Sense",
   },
   other: {
     "mobile-web-app-capable": "yes",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  themeColor: "#b33a2e",
   width: "device-width",
   initialScale: 1,
 };

@@ -1,42 +1,69 @@
-self.addEventListener("push", (event) => {
-  if (!event.data) {
+const CACHE_NAME = "yen-sense-v1";
+const APP_SHELL = [
+  "/",
+  "/manifest.webmanifest",
+  "/icon-192x192.png",
+  "/icon-512x512.png",
+  "/apple-touch-icon.png",
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames
+          .filter((cacheName) => cacheName !== CACHE_NAME)
+          .map((cacheName) => caches.delete(cacheName)),
+      ),
+    ),
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+
+  if (request.method !== "GET") {
     return;
   }
 
-  const data = event.data.json();
-  const title = data.title || "Notification";
-  const options = {
-    body: data.body || "",
-    icon: data.icon || "/icon-192x192.png",
-    badge: data.badge || "/badge-72x72.png",
-    data: {
-      url: data.url || "/",
-      receivedAt: Date.now(),
-    },
-    vibrate: [100, 50, 100],
-  };
+  const requestUrl = new URL(request.url);
+  if (requestUrl.origin !== self.location.origin) {
+    return;
+  }
 
-  event.waitUntil(self.registration.showNotification(title, options));
-});
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put("/", responseClone));
+          return response;
+        })
+        .catch(() => caches.match("/")),
+    );
+    return;
+  }
 
-self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
-  const targetUrl = event.notification.data?.url || "/";
-
-  event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
-      for (const client of windowClients) {
-        if ("focus" in client) {
-          client.navigate(targetUrl);
-          return client.focus();
+  event.respondWith(
+    caches.match(request).then((cachedResponse) => {
+      const networkResponse = fetch(request).then((response) => {
+        if (response.ok) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
         }
-      }
 
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
+        return response;
+      });
 
-      return undefined;
+      return cachedResponse || networkResponse;
     }),
   );
 });

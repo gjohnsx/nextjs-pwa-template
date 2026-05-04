@@ -2,16 +2,16 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Next.js PWA Template",
-    short_name: "NextPWA",
+    name: "Yen Sense",
+    short_name: "Yen Sense",
     description:
-      "Clone-and-deploy Next.js + Vercel progressive web app starter with install support and optional web push notifications.",
+      "Fast yen-to-USD conversion and pocket practice for Japan travel.",
     start_url: "/",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#ece6da",
-    theme_color: "#0f172a",
+    background_color: "#fff8ea",
+    theme_color: "#b33a2e",
     icons: [
       {
         src: "/icon-192x192.png",

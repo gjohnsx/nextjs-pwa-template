@@ -5,26 +5,36 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --surface: #fff9ef;
-  --surface-muted: rgba(255, 249, 239, 0.82);
+  --ink: #171d1c;
+  --muted-ink: #59635f;
+  --faint-ink: #a6aaa3;
+  --paper: #fff8ea;
+  --drawer: #f8f2e6;
+  --line: #ded4c1;
+  --vermilion: #b33a2e;
+  --pine: #1f6f5b;
+  --indigo: #24385f;
+  --surface: #fff8ea;
+  --surface-muted: rgba(255, 248, 234, 0.86);
   --radius: 0rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: #fff8ea;
+  --foreground: #171d1c;
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: #171d1c;
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --popover-foreground: #171d1c;
+  --primary: #171d1c;
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --secondary: #efe5d4;
+  --secondary-foreground: #171d1c;
+  --muted: #efe5d4;
+  --muted-foreground: #59635f;
+  --accent: #e8eef0;
+  --accent-foreground: #171d1c;
+  --destructive: #b33a2e;
+  --border: #ded4c1;
+  --input: #ded4c1;
+  --ring: #b33a2e;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -90,19 +100,11 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-image:
-    radial-gradient(
-      circle at 8% 14%,
-      rgba(245, 158, 11, 0.28) 0%,
-      rgba(245, 158, 11, 0) 32%
-    ),
-    radial-gradient(
-      circle at 90% 10%,
-      rgba(15, 76, 129, 0.28) 0%,
-      rgba(15, 76, 129, 0) 38%
-    ),
-    linear-gradient(180deg, #f7f2e8 0%, #ece6da 100%);
+  background:
+    linear-gradient(180deg, #fff8ea 0%, #f7efe0 58%, #e8eef0 100%);
+  color: var(--ink);
   font-family: var(--font-geist-sans), sans-serif;
+  overscroll-behavior: none;
 }
 
 .font-display {
