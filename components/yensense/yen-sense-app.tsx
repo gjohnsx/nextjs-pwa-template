@@ -898,17 +898,7 @@ export function YenSenseApp() {
             </button>
           </footer>
         </div>
-
       </section>
-
-      <button
-        type="button"
-        aria-label="Open practice and rate drawer"
-        onClick={() => setDrawerOpen(true)}
-        className="fixed right-0 top-0 z-30 h-dvh w-8 bg-transparent text-transparent sm:hidden"
-      >
-        Open
-      </button>
 
       <button
         type="button"
