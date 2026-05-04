@@ -1,10 +1,13 @@
-const CACHE_NAME = "yen-sense-v1";
+const CACHE_NAME = "yen-sense-v2";
 const APP_SHELL = [
   "/",
   "/manifest.webmanifest",
   "/icon-192x192.png",
   "/icon-512x512.png",
+  "/icon-maskable-192x192.png",
+  "/icon-maskable-512x512.png",
   "/apple-touch-icon.png",
+  "/badge-72x72.png",
 ];
 
 self.addEventListener("install", (event) => {
