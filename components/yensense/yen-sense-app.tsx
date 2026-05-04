@@ -34,29 +34,65 @@ import {
   formatYenPerUsd,
   parseUsdInput,
   parseYenInput,
+  type RateStatus,
 } from "./currency";
-import { useQuizProgress, QuizResult } from "./use-quiz-progress";
+import { useQuizProgress, type QuizResult } from "./use-quiz-progress";
 import { useYenRate } from "./use-yen-rate";
 
 type DrawerView = "practice" | "rate" | "phone";
 
 const QUICK_AMOUNT_SETS = [
   {
-    label: "Tally",
-    note: "tiny nudges for adding store items",
+    label: "Tally 集計",
+    note: "konbini math / コンビニ足し算",
     amounts: [25, 50, 100, 500],
   },
   {
-    label: "Meals",
-    note: "cafes, transit, casual food",
+    label: "Meals 食事",
+    note: "cafes, transit / 喫茶と電車",
     amounts: [500, 780, 1200, 2300],
   },
   {
-    label: "Trip",
-    note: "shopping, tickets, hotel math",
+    label: "Trip 旅費",
+    note: "shopping, tickets / 旅の大物",
     amounts: [5000, 10000, 20000, 50000],
   },
 ];
+
+const STATUS_LABELS: Record<RateStatus, string> = {
+  loading: "FETCH 取得中",
+  live: "NEW 新着",
+  cached: "SAVED 保存",
+  fallback: "ROUGH 目安",
+  error: "ALERT 注意",
+};
+
+function formatRateStatus({
+  isManual,
+  status,
+}: {
+  isManual: boolean;
+  status: RateStatus;
+}) {
+  if (isManual) {
+    return "SAVED 手入力";
+  }
+
+  return STATUS_LABELS[status];
+}
+
+function formatMetaDate(value: number | null) {
+  if (!value) {
+    return "NO SIGNAL";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(value);
+}
 
 function registerAppShell() {
   if (!("serviceWorker" in navigator)) {
@@ -69,6 +105,44 @@ function registerAppShell() {
   }).catch(() => {
     toast.error("Offline mode could not start.");
   });
+}
+
+function PanelMeta({
+  issue,
+  label,
+}: {
+  issue: string;
+  label: string;
+}) {
+  return (
+    <div className="zine-meta flex items-center justify-between border-b bg-[var(--ink)] px-2 py-1 text-[10px] leading-none text-[var(--paper)]">
+      <span>{issue}</span>
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function ZineButton({
+  children,
+  className = "",
+  accent = false,
+  ...props
+}: React.ComponentProps<"button"> & {
+  accent?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      className={`flex min-h-10 items-center justify-center gap-2 border px-2 py-2 text-xs font-bold transition-colors duration-100 ease-linear ${
+        accent
+          ? "bg-[var(--accent-pop)] text-[var(--paper)] hover:bg-[var(--ink)]"
+          : "bg-[var(--paper)] text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--paper)]"
+      } ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  );
 }
 
 function InstallPanel() {
@@ -119,53 +193,56 @@ function InstallPanel() {
 
   async function handleInstallClick() {
     if (!deferredPrompt) {
-      toast.info(isIOS ? "Use Share, then Add to Home Screen." : "Use the browser install option.");
+      toast.info(
+        isIOS
+          ? "Share, then Add to Home Screen."
+          : "Use the browser install option.",
+      );
       return;
     }
 
     await deferredPrompt.prompt();
     const userChoice = await deferredPrompt.userChoice;
     toast[userChoice.outcome === "accepted" ? "success" : "warning"](
-      userChoice.outcome === "accepted" ? "Install accepted." : "Install dismissed.",
+      userChoice.outcome === "accepted"
+        ? "Install accepted."
+        : "Install dismissed.",
     );
     setDeferredPrompt(null);
   }
 
   return (
-    <div className="space-y-4">
-      <div className="border border-[color:var(--line)] bg-[var(--paper)] p-4">
-        <div className="flex items-start gap-3">
-          <Smartphone className="mt-0.5 size-5 text-[var(--vermilion)]" />
-          <div>
-            <p className="text-sm font-semibold text-[var(--ink)]">
-              Phone app
-            </p>
-            <p className="mt-1 text-sm text-[var(--muted-ink)]">
-              {isStandalone
-                ? "Running from your home screen."
-                : "Ready to install as a standalone PWA."}
-            </p>
-          </div>
+    <section className="grid gap-2">
+      <PanelMeta issue="P.03" label="PHONE APP 電話" />
+      <div className="grid grid-cols-[78px_1fr] border bg-[var(--paper)]">
+        <div className="grid place-items-center border-r p-2">
+          <Smartphone className="size-8 text-[var(--accent-pop)]" />
+        </div>
+        <div className="p-2">
+          <p className="font-serif text-2xl font-bold leading-none">
+            Home Screen ホーム
+          </p>
+          <p className="zine-meta mt-2 text-[10px]">
+            {isStandalone
+              ? "RUNNING STANDALONE / 保存済"
+              : "PWA READY / 追加可能"}
+          </p>
         </div>
       </div>
 
       {!isStandalone ? (
-        <button
-          type="button"
-          onClick={handleInstallClick}
-          className="flex h-12 w-full items-center justify-center gap-2 border border-[var(--ink)] bg-[var(--ink)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--vermilion)]"
-        >
+        <ZineButton onClick={handleInstallClick} accent>
           <Check className="size-4" />
-          Add to Home Screen
-        </button>
+          Add 追加
+        </ZineButton>
       ) : null}
 
       {isIOS && !isStandalone ? (
-        <p className="text-sm text-[var(--muted-ink)]">
-          iOS Safari: Share, then Add to Home Screen.
+        <p className="zine-meta border px-2 py-1 text-[10px]">
+          IOS SAFARI: SHARE THEN ADD / 共有から追加
         </p>
       ) : null}
-    </div>
+    </section>
   );
 }
 
@@ -180,7 +257,7 @@ function RatePanel({
 }: {
   currentRate: number;
   liveRate: number | null;
-  status: string;
+  status: RateStatus;
   errorMessage: string | null;
   onManualRateChange: (rate: number | null) => void;
   onRefresh: () => void;
@@ -204,82 +281,59 @@ function RatePanel({
   }
 
   return (
-    <div className="space-y-5">
-      <div>
-        <label
-          htmlFor="manual-rate"
-          className="text-sm font-semibold text-[var(--ink)]"
-        >
-          Yen per dollar
-        </label>
-        <div className="mt-2 flex items-center border border-[color:var(--line)] bg-white">
-          <span className="px-3 text-sm font-semibold text-[var(--muted-ink)]">
-            ¥
-          </span>
-          <input
-            id="manual-rate"
-            inputMode="decimal"
-            value={rateInput}
-            onChange={(event) => setRateInput(event.target.value)}
-            className="h-14 min-w-0 flex-1 bg-transparent pr-3 font-mono text-3xl text-[var(--ink)] outline-none"
-          />
-        </div>
+    <section className="grid gap-2">
+      <PanelMeta issue="P.02" label="RATE DESK レート" />
+      <label htmlFor="manual-rate" className="zine-meta text-[10px]">
+        Yen per dollar / 円ドル
+      </label>
+      <div className="grid grid-cols-[42px_1fr] border bg-[var(--paper)]">
+        <span className="grid place-items-center border-r font-serif text-4xl font-bold text-[var(--accent-pop)]">
+          ¥
+        </span>
+        <input
+          id="manual-rate"
+          inputMode="decimal"
+          value={rateInput}
+          onChange={(event) => setRateInput(event.target.value)}
+          className="h-16 min-w-0 bg-transparent px-2 font-mono text-5xl font-bold leading-none text-[var(--ink)] outline-none"
+        />
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={applyManualRate}
-          className="flex h-11 items-center justify-center gap-2 border border-[var(--vermilion)] bg-[var(--vermilion)] px-3 text-sm font-semibold text-white transition hover:bg-[var(--ink)]"
-        >
+      <div className="grid grid-cols-[1.25fr_0.75fr] gap-2">
+        <ZineButton onClick={applyManualRate} accent>
           <Check className="size-4" />
-          Use rate
-        </button>
-        <button
-          type="button"
-          onClick={() => onManualRateChange(null)}
-          className="flex h-11 items-center justify-center gap-2 border border-[color:var(--line)] bg-white px-3 text-sm font-semibold text-[var(--ink)] transition hover:border-[var(--ink)]"
-        >
+          Use 採用
+        </ZineButton>
+        <ZineButton onClick={() => onManualRateChange(null)}>
           <RotateCcw className="size-4" />
-          Use live
-        </button>
+          Live 生
+        </ZineButton>
       </div>
 
-      <div className="space-y-3 border border-[color:var(--line)] bg-[var(--paper)] p-4">
-        <p className="text-sm font-semibold text-[var(--ink)]">
-          Live source
-        </p>
-        <p className="text-sm text-[var(--muted-ink)]">
+      <div className="grid border bg-[var(--paper)]">
+        <PanelMeta issue="SOURCE ID: FX-150" label={STATUS_LABELS[status]} />
+        <p className="px-2 py-2 text-sm leading-tight">
           {liveRate
-            ? `Last fetched rate is ¥${formatYenPerUsd(liveRate)} = $1.`
-            : `No live rate yet. The offline estimate is ¥${formatYenPerUsd(FALLBACK_YEN_PER_USD)} = $1.`}
-        </p>
-        <p className="text-xs uppercase text-[var(--pine)]">
-          {status === "loading" ? "Refreshing" : status}
+            ? `Last fetched rate / 取得値: ¥${formatYenPerUsd(liveRate)} = $1.`
+            : `No live rate / オフライン目安: ¥${formatYenPerUsd(FALLBACK_YEN_PER_USD)} = $1.`}
         </p>
         {errorMessage ? (
-          <p className="text-sm text-[var(--vermilion)]">{errorMessage}</p>
+          <p className="border-t px-2 py-2 text-sm font-bold text-[var(--accent-pop)]">
+            {errorMessage}
+          </p>
         ) : null}
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={onRefresh}
-          className="flex h-11 items-center justify-center gap-2 border border-[color:var(--line)] bg-white px-3 text-sm font-semibold text-[var(--ink)] transition hover:border-[var(--ink)]"
-        >
+        <ZineButton onClick={onRefresh}>
           <RefreshCw className="size-4" />
-          Refresh
-        </button>
-        <button
-          type="button"
-          onClick={onFallback}
-          className="flex h-11 items-center justify-center border border-[color:var(--line)] bg-white px-3 text-sm font-semibold text-[var(--ink)] transition hover:border-[var(--ink)]"
-        >
-          ¥150 mode
-        </button>
+          Refresh 更新
+        </ZineButton>
+        <ZineButton onClick={onFallback}>
+          ¥150 Mode 目安
+        </ZineButton>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -313,123 +367,99 @@ function PracticePanel({
   }
 
   const ratingCopy = {
-    nailed: "Nailed it",
-    strong: "Strong estimate",
-    close: "Close enough",
-    repeat: "Repeat soon",
+    nailed: "NEW 新着",
+    strong: "SAVED 保存",
+    close: "CLOSE 近い",
+    repeat: "REPEAT 復習",
   } as const;
 
   return (
-    <div className="space-y-5">
-      <div className="grid grid-cols-4 border border-[color:var(--line)] bg-[var(--paper)] text-center">
-        <div className="border-r border-[color:var(--line)] p-3">
-          <p className="font-mono text-xl font-semibold text-[var(--ink)]">
-            {quiz.summary.dueNow}
-          </p>
-          <p className="text-xs text-[var(--muted-ink)]">due</p>
-        </div>
-        <div className="border-r border-[color:var(--line)] p-3">
-          <p className="font-mono text-xl font-semibold text-[var(--ink)]">
-            {quiz.summary.practiced}
-          </p>
-          <p className="text-xs text-[var(--muted-ink)]">seen</p>
-        </div>
-        <div className="border-r border-[color:var(--line)] p-3">
-          <p className="font-mono text-xl font-semibold text-[var(--ink)]">
-            {quiz.summary.mastered}
-          </p>
-          <p className="text-xs text-[var(--muted-ink)]">solid</p>
-        </div>
-        <div className="p-3">
-          <p className="font-mono text-xl font-semibold text-[var(--ink)]">
-            {quiz.summary.bestStreak}
-          </p>
-          <p className="text-xs text-[var(--muted-ink)]">streak</p>
-        </div>
+    <section className="grid gap-2">
+      <PanelMeta issue="P.01" label="MENTAL DRILL 暗算" />
+      <div className="grid grid-cols-4 border bg-[var(--paper)] text-center">
+        {[
+          ["due", quiz.summary.dueNow],
+          ["seen", quiz.summary.practiced],
+          ["solid", quiz.summary.mastered],
+          ["streak", quiz.summary.bestStreak],
+        ].map(([label, value]) => (
+          <div className="border-r p-2 last:border-r-0" key={label}>
+            <p className="font-mono text-2xl leading-none">{value}</p>
+            <p className="zine-meta mt-1 text-[9px]">{label} 件</p>
+          </div>
+        ))}
       </div>
 
-      <div className="border border-[color:var(--line)] bg-white p-5">
-        <p className="text-sm text-[var(--muted-ink)]">
-          {quiz.currentAmount.label}
-        </p>
-        <p className="mt-2 font-mono text-5xl font-semibold text-[var(--ink)]">
+      <div className="relative grid border bg-[var(--paper)] p-2">
+        <span className="zine-sticker absolute right-2 top-2 px-2 py-1 text-[10px]">
+          Quiz 問
+        </span>
+        <p className="zine-meta text-[10px]">{quiz.currentAmount.label}</p>
+        <p className="mt-1 font-serif text-6xl font-bold leading-none">
           ¥{formatYen(quiz.currentAmount.yen)}
         </p>
       </div>
 
-      <div>
-        <label
-          htmlFor="quiz-guess"
-          className="text-sm font-semibold text-[var(--ink)]"
-        >
-          Your USD estimate
-        </label>
-        <div className="mt-2 flex items-center border border-[color:var(--line)] bg-white">
-          <span className="px-3 text-sm font-semibold text-[var(--muted-ink)]">
-            $
-          </span>
-          <input
-            id="quiz-guess"
-            value={guessInput}
-            onChange={(event) => setGuessInput(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !result) {
-                submitGuess();
-              }
-            }}
-            inputMode="decimal"
-            placeholder="0.00"
-            className="h-14 min-w-0 flex-1 bg-transparent pr-3 font-mono text-3xl text-[var(--ink)] outline-none placeholder:text-[var(--faint-ink)]"
-          />
-        </div>
+      <label htmlFor="quiz-guess" className="zine-meta text-[10px]">
+        Your USD estimate / ドル予想
+      </label>
+      <div className="grid grid-cols-[42px_1fr] border bg-[var(--paper)]">
+        <span className="grid place-items-center border-r font-serif text-4xl font-bold text-[var(--accent-pop)]">
+          $
+        </span>
+        <input
+          id="quiz-guess"
+          value={guessInput}
+          onChange={(event) => setGuessInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !result) {
+              submitGuess();
+            }
+          }}
+          inputMode="decimal"
+          placeholder="0.00"
+          className="h-14 min-w-0 bg-transparent px-2 font-mono text-4xl text-[var(--ink)] outline-none placeholder:text-[var(--ink)]"
+        />
       </div>
 
       {result ? (
-        <div className="space-y-2 border border-[color:var(--line)] bg-[var(--paper)] p-4">
-          <p className="text-sm font-semibold text-[var(--vermilion)]">
-            {ratingCopy[result.rating]}
-          </p>
-          <p className="font-mono text-3xl font-semibold text-[var(--ink)]">
+        <div className="grid border bg-[var(--paper)]">
+          <PanelMeta issue={`BOX ${result.stats.boxLevel}`} label={ratingCopy[result.rating]} />
+          <p className="px-2 py-1 font-mono text-4xl leading-none">
             {formatUsdCompact(result.exactUsd)}
           </p>
-          <p className="text-sm text-[var(--muted-ink)]">
-            {result.errorPercent.toFixed(1)}% away. Box {result.stats.boxLevel}.
+          <p className="zine-meta border-t px-2 py-1 text-[10px]">
+            {result.errorPercent.toFixed(1)}% AWAY / 誤差
           </p>
         </div>
       ) : null}
 
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={result ? nextQuestion : submitGuess}
-          className="flex h-12 items-center justify-center gap-2 border border-[var(--vermilion)] bg-[var(--vermilion)] px-3 text-sm font-semibold text-white transition hover:bg-[var(--ink)]"
-        >
+      <div className="grid grid-cols-[1.35fr_0.65fr] gap-2">
+        <ZineButton onClick={result ? nextQuestion : submitGuess} accent>
           {result ? (
             <>
               <ChevronsRight className="size-4" />
-              Next
+              Next 次
             </>
           ) : (
             <>
               <Check className="size-4" />
-              Check
+              Check 確認
             </>
           )}
-        </button>
-        <button
-          type="button"
+        </ZineButton>
+        <ZineButton
           onClick={() => {
             quiz.resetProgress();
             setGuessInput("");
             setResult(null);
           }}
-          className="flex h-12 items-center justify-center gap-2 border border-[color:var(--line)] bg-white px-3 text-sm font-semibold text-[var(--ink)] transition hover:border-[var(--ink)]"
         >
           <RotateCcw className="size-4" />
           Reset
-        </button>
+        </ZineButton>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -445,6 +475,11 @@ export function YenSenseApp() {
   const rate = useYenRate();
   const yenAmount = parseYenInput(yenInput);
   const usdAmount = convertYenToUsd(yenAmount, rate.effectiveRate.yenPerUsd);
+  const quickSet = QUICK_AMOUNT_SETS[quickSetIndex];
+  const statusLabel = formatRateStatus({
+    isManual: rate.effectiveRate.isManual,
+    status: rate.status,
+  });
 
   useEffect(() => {
     registerAppShell();
@@ -598,64 +633,253 @@ export function YenSenseApp() {
     [runActionWithoutMovingFocus],
   );
 
-  const quickSet = QUICK_AMOUNT_SETS[quickSetIndex];
-
   return (
-    <main className="relative min-h-dvh overflow-x-hidden overflow-y-auto px-5 py-4 text-[var(--ink)]">
-      <section
-        className={`mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-md flex-col ${
-          keyboardMode ? "gap-4" : "gap-6"
-        }`}
-      >
-        <header className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-[var(--vermilion)]">
-              Yen Sense
-            </p>
-            <h1
-              className={`mt-1 font-semibold text-[var(--ink)] ${
-                keyboardMode ? "text-xl" : "text-2xl"
-              }`}
-            >
-              Japan pocket rate
-            </h1>
-          </div>
-          <div className="border border-[color:var(--line)] bg-white px-3 py-2 text-right">
-            <p className="text-xs text-[var(--muted-ink)]">JPY/USD</p>
-            <p className="font-mono text-lg font-semibold text-[var(--pine)]">
-              {formatYenPerUsd(rate.effectiveRate.yenPerUsd)}
-            </p>
-          </div>
-        </header>
+    <main className="relative min-h-dvh overflow-x-hidden bg-[var(--paper)] text-[var(--ink)]">
+      <section className="mx-auto grid min-h-dvh w-full max-w-[680px] grid-cols-[14px_1fr] gap-1.5 border-x px-1.5 py-1.5 sm:grid-cols-[18px_1fr] sm:gap-2 sm:px-2">
+        <aside className="zine-vertical zine-meta border bg-[var(--ink)] px-0.5 py-2 text-[9px] leading-none text-[var(--paper)]">
+          YEN SENSE / 東京換算
+        </aside>
 
-        <section
-          className={`border-y border-[color:var(--line)] ${
-            keyboardMode ? "py-3" : "py-5"
-          }`}
-        >
-          <p className="text-sm font-semibold text-[var(--muted-ink)]">USD</p>
-          <output
-            aria-live="polite"
-            className={`mt-2 block break-words font-mono font-semibold leading-none text-[var(--ink)] ${
-              keyboardMode ? "text-5xl" : "text-6xl sm:text-7xl"
+        <div className={`grid min-h-[calc(100dvh-0.75rem)] gap-1.5 sm:gap-2 ${keyboardMode ? "content-start" : ""}`}>
+          <header className="border bg-[var(--paper)]">
+            <PanelMeta issue="ISSUE 1998-04" label="TRAVEL MONEY 旅の円" />
+            <div className="grid grid-cols-[1fr_auto] items-end gap-2 p-2">
+              <div className="min-w-0">
+                <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                  <span className="zine-sticker inline-block px-2 py-1 text-[10px]">
+                    {statusLabel}
+                  </span>
+                  <span className="zine-meta text-[10px]">
+                    JPY to USD / 東京メモ
+                  </span>
+                </div>
+                <h1 className="font-serif text-[34px] font-extrabold leading-[0.85] sm:text-[44px]">
+                  Yen Sense
+                </h1>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(true)}
+                className="zine-meta border bg-[var(--accent-pop)] px-2 py-2 text-[10px] text-[var(--paper)] transition-colors hover:bg-[var(--ink)]"
+              >
+                Menu メニュー
+              </button>
+            </div>
+          </header>
+
+          <section className="grid grid-cols-[1fr_74px] gap-2 sm:grid-cols-[1.55fr_0.45fr]">
+            <div className="grid border bg-[var(--paper)]">
+              <PanelMeta issue="P.01 RESULT" label="USD 表示" />
+              <div className="p-2">
+                <p className="zine-meta text-[10px]">Dollar result / ドル</p>
+                <output
+                  aria-live="polite"
+                  className={`block break-words font-serif font-extrabold leading-none ${
+                    keyboardMode ? "text-5xl" : "text-[58px] sm:text-[88px]"
+                  }`}
+                >
+                  {formatUsd(usdAmount)}
+                </output>
+              </div>
+            </div>
+
+            <div className="grid border bg-[var(--paper)] text-center">
+              <PanelMeta issue="JPY/USD" label="RATE" />
+              <div className="grid content-center p-1">
+                <p className="font-mono text-3xl leading-none sm:text-4xl">
+                  {formatYenPerUsd(rate.effectiveRate.yenPerUsd)}
+                </p>
+                <p className="zine-meta mt-1 text-[9px]">円/ドル</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="grid gap-2 border bg-[var(--paper)] p-2">
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="yen-input" className="zine-meta text-[10px]">
+                Yen amount / 円を入力
+              </label>
+              <button
+                type="button"
+                aria-label="Clear yen amount"
+                title="Clear yen amount"
+                tabIndex={-1}
+                onMouseDown={(event) =>
+                  runPreservingInputFocus(event, clearYen)
+                }
+                onPointerDownCapture={(event) =>
+                  runPreservingInputFocus(event, clearYen)
+                }
+                onTouchStart={(event) =>
+                  runPreservingInputFocus(event, clearYen)
+                }
+                onClick={(event) => runFallbackClick(event, clearYen)}
+                className={`grid size-8 place-items-center border bg-[var(--paper)] transition-colors hover:bg-[var(--accent-pop)] hover:text-[var(--paper)] ${
+                  keyboardMode ? "" : "sm:hidden"
+                }`}
+              >
+                <CircleX className="size-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-[42px_1fr] border bg-[var(--paper)]">
+              <span className="grid place-items-center border-r font-serif text-5xl font-bold text-[var(--accent-pop)]">
+                ¥
+              </span>
+              <input
+                ref={inputRef}
+                id="yen-input"
+                value={yenInput}
+                onChange={(event) => {
+                  const yen = parseYenInput(event.target.value);
+                  setYenInput(formatYenInput(yen));
+                }}
+                inputMode="numeric"
+                autoComplete="off"
+                autoCorrect="off"
+                placeholder="0"
+                className={`min-w-0 bg-transparent px-2 font-mono font-bold leading-none text-[var(--ink)] outline-none placeholder:text-[var(--ink)] ${
+                  keyboardMode ? "h-16 text-5xl" : "h-20 text-6xl sm:text-7xl"
+                }`}
+              />
+            </div>
+
+            <div className="grid grid-cols-[1fr_auto] gap-2">
+              <div>
+                <p className="zine-meta text-[10px]">Quick adds / 早足し</p>
+                <p className="text-xs leading-tight">{quickSet.note}</p>
+              </div>
+              <div className="grid grid-cols-[32px_76px_32px] border bg-[var(--paper)]">
+                <button
+                  type="button"
+                  aria-label="Use smaller quick amounts"
+                  title="Smaller amounts"
+                  disabled={quickSetIndex === 0}
+                  tabIndex={-1}
+                  onMouseDown={(event) =>
+                    runPreservingInputFocus(event, () =>
+                      setQuickSetIndex((currentIndex) =>
+                        Math.max(0, currentIndex - 1),
+                      ),
+                    )
+                  }
+                  onPointerDownCapture={(event) =>
+                    runPreservingInputFocus(event, () =>
+                      setQuickSetIndex((currentIndex) =>
+                        Math.max(0, currentIndex - 1),
+                      ),
+                    )
+                  }
+                  onTouchStart={(event) =>
+                    runPreservingInputFocus(event, () =>
+                      setQuickSetIndex((currentIndex) =>
+                        Math.max(0, currentIndex - 1),
+                      ),
+                    )
+                  }
+                  onClick={(event) =>
+                    runFallbackClick(event, () =>
+                      setQuickSetIndex((currentIndex) =>
+                        Math.max(0, currentIndex - 1),
+                      ),
+                    )
+                  }
+                  className="grid place-items-center border-r transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)] disabled:text-[var(--ink)]"
+                >
+                  <ChevronLeft className="size-4" />
+                </button>
+                <span className="zine-meta grid place-items-center border-r px-1 text-center text-[9px]">
+                  {quickSet.label}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Use larger quick amounts"
+                  title="Larger amounts"
+                  disabled={quickSetIndex === QUICK_AMOUNT_SETS.length - 1}
+                  tabIndex={-1}
+                  onMouseDown={(event) =>
+                    runPreservingInputFocus(event, () =>
+                      setQuickSetIndex((currentIndex) =>
+                        Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
+                      ),
+                    )
+                  }
+                  onPointerDownCapture={(event) =>
+                    runPreservingInputFocus(event, () =>
+                      setQuickSetIndex((currentIndex) =>
+                        Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
+                      ),
+                    )
+                  }
+                  onTouchStart={(event) =>
+                    runPreservingInputFocus(event, () =>
+                      setQuickSetIndex((currentIndex) =>
+                        Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
+                      ),
+                    )
+                  }
+                  onClick={(event) =>
+                    runFallbackClick(event, () =>
+                      setQuickSetIndex((currentIndex) =>
+                        Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
+                      ),
+                    )
+                  }
+                  className="grid place-items-center transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)] disabled:text-[var(--ink)]"
+                >
+                  <ChevronRight className="size-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-1">
+              {quickSet.amounts.map((amount) => (
+                <button
+                  type="button"
+                  key={amount}
+                  tabIndex={-1}
+                  onMouseDown={(event) =>
+                    runPreservingInputFocus(event, () => addYen(amount))
+                  }
+                  onPointerDownCapture={(event) =>
+                    runPreservingInputFocus(event, () => addYen(amount))
+                  }
+                  onTouchStart={(event) =>
+                    runPreservingInputFocus(event, () => addYen(amount))
+                  }
+                  onClick={(event) =>
+                    runFallbackClick(event, () => addYen(amount))
+                  }
+                  className="zine-meta h-10 border bg-[var(--paper)] text-[10px] transition-colors hover:bg-[var(--accent-pop)] hover:text-[var(--paper)]"
+                >
+                  +¥{formatYen(amount)}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <footer
+            className={`grid grid-cols-[1fr_auto] items-stretch gap-2 ${
+              keyboardMode ? "hidden" : ""
             }`}
           >
-            {formatUsd(usdAmount)}
-          </output>
-        </section>
-
-        <section className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <label
-              htmlFor="yen-input"
-              className="text-sm font-semibold text-[var(--muted-ink)]"
-            >
-              Yen amount
-            </label>
+            <div className="border bg-[var(--paper)] px-2 py-1">
+              <p className="zine-meta text-[10px]">
+                {rate.status === "loading"
+                  ? "Refreshing rate / 更新中"
+                  : "Ready offline / オフライン可"}
+              </p>
+              <p className="zine-meta text-[10px]">
+                FETCHED: {formatMetaDate(rate.effectiveRate.fetchedAt)}
+              </p>
+              {rate.errorMessage ? (
+                <p className="text-xs font-bold text-[var(--accent-pop)]">
+                  {rate.errorMessage}
+                </p>
+              ) : null}
+            </div>
             <button
               type="button"
-              aria-label="Clear yen amount"
-              title="Clear yen amount"
               tabIndex={-1}
               onMouseDown={(event) =>
                 runPreservingInputFocus(event, clearYen)
@@ -667,240 +891,66 @@ export function YenSenseApp() {
                 runPreservingInputFocus(event, clearYen)
               }
               onClick={(event) => runFallbackClick(event, clearYen)}
-              className={`size-10 place-items-center border border-[color:var(--line)] bg-white text-[var(--ink)] transition hover:border-[var(--vermilion)] ${
-                keyboardMode ? "grid" : "hidden"
-              }`}
+              className="flex min-w-20 items-center justify-center gap-1 border bg-[var(--paper)] px-2 text-xs font-bold transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]"
             >
-              <CircleX className="size-5" />
-              <span className="sr-only">Clear</span>
+              <CircleX className="size-4" />
+              Clear 消
             </button>
-          </div>
-          <div className="flex items-end border-b-2 border-[var(--ink)] pb-3">
-            <span className="mb-2 mr-2 text-4xl font-semibold text-[var(--vermilion)]">
-              ¥
-            </span>
-            <input
-              ref={inputRef}
-              id="yen-input"
-              value={yenInput}
-              onChange={(event) => {
-                const yen = parseYenInput(event.target.value);
-                setYenInput(formatYenInput(yen));
-              }}
-              inputMode="numeric"
-              autoComplete="off"
-              autoCorrect="off"
-              placeholder="0"
-              className={`min-w-0 flex-1 bg-transparent font-mono font-semibold leading-none text-[var(--ink)] outline-none placeholder:text-[var(--faint-ink)] ${
-                keyboardMode ? "text-5xl" : "text-6xl sm:text-7xl"
-              }`}
-            />
-          </div>
+          </footer>
+        </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase text-[var(--muted-ink)]">
-                Quick adds
-              </p>
-              <p className="text-xs text-[var(--muted-ink)]">
-                {quickSet.note}
-              </p>
-            </div>
-            <div className="flex h-9 items-center border border-[color:var(--line)] bg-white">
-              <button
-                type="button"
-                aria-label="Use smaller quick amounts"
-                title="Smaller amounts"
-                disabled={quickSetIndex === 0}
-                tabIndex={-1}
-                onMouseDown={(event) =>
-                  runPreservingInputFocus(event, () =>
-                    setQuickSetIndex((currentIndex) =>
-                      Math.max(0, currentIndex - 1),
-                    ),
-                  )
-                }
-                onPointerDownCapture={(event) =>
-                  runPreservingInputFocus(event, () =>
-                    setQuickSetIndex((currentIndex) =>
-                      Math.max(0, currentIndex - 1),
-                    ),
-                  )
-                }
-                onTouchStart={(event) =>
-                  runPreservingInputFocus(event, () =>
-                    setQuickSetIndex((currentIndex) =>
-                      Math.max(0, currentIndex - 1),
-                    ),
-                  )
-                }
-                onClick={(event) =>
-                  runFallbackClick(event, () =>
-                    setQuickSetIndex((currentIndex) =>
-                      Math.max(0, currentIndex - 1),
-                    ),
-                  )
-                }
-                className="grid size-9 place-items-center text-[var(--ink)] transition hover:text-[var(--vermilion)] disabled:opacity-25"
-              >
-                <ChevronLeft className="size-4" />
-              </button>
-              <span className="min-w-14 border-x border-[color:var(--line)] px-2 text-center text-xs font-semibold text-[var(--ink)]">
-                {quickSet.label}
-              </span>
-              <button
-                type="button"
-                aria-label="Use larger quick amounts"
-                title="Larger amounts"
-                disabled={quickSetIndex === QUICK_AMOUNT_SETS.length - 1}
-                tabIndex={-1}
-                onMouseDown={(event) =>
-                  runPreservingInputFocus(event, () =>
-                    setQuickSetIndex((currentIndex) =>
-                      Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
-                    ),
-                  )
-                }
-                onPointerDownCapture={(event) =>
-                  runPreservingInputFocus(event, () =>
-                    setQuickSetIndex((currentIndex) =>
-                      Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
-                    ),
-                  )
-                }
-                onTouchStart={(event) =>
-                  runPreservingInputFocus(event, () =>
-                    setQuickSetIndex((currentIndex) =>
-                      Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
-                    ),
-                  )
-                }
-                onClick={(event) =>
-                  runFallbackClick(event, () =>
-                    setQuickSetIndex((currentIndex) =>
-                      Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
-                    ),
-                  )
-                }
-                className="grid size-9 place-items-center text-[var(--ink)] transition hover:text-[var(--vermilion)] disabled:opacity-25"
-              >
-                <ChevronRight className="size-4" />
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-4 gap-1.5">
-            {quickSet.amounts.map((amount) => (
-              <button
-                type="button"
-                key={amount}
-                tabIndex={-1}
-                onMouseDown={(event) =>
-                  runPreservingInputFocus(event, () => addYen(amount))
-                }
-                onPointerDownCapture={(event) =>
-                  runPreservingInputFocus(event, () => addYen(amount))
-                }
-                onTouchStart={(event) =>
-                  runPreservingInputFocus(event, () => addYen(amount))
-                }
-                onClick={(event) =>
-                  runFallbackClick(event, () => addYen(amount))
-                }
-                className="h-9 border border-[color:var(--line)] bg-white font-mono text-xs font-semibold text-[var(--ink)] transition hover:border-[var(--vermilion)] hover:text-[var(--vermilion)]"
-              >
-                +¥{formatYen(amount)}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <footer
-          className={`mt-auto flex items-center justify-between gap-3 border-t border-[color:var(--line)] pt-4 ${
-            keyboardMode ? "hidden" : ""
-          }`}
-        >
-          <div>
-            <p className="text-xs text-[var(--muted-ink)]">
-              {rate.status === "loading" ? "Refreshing rate" : "Ready offline"}
-            </p>
-            {rate.errorMessage ? (
-              <p className="text-xs text-[var(--vermilion)]">
-                {rate.errorMessage}
-              </p>
-            ) : null}
-          </div>
-          <button
-            type="button"
-            tabIndex={-1}
-            onMouseDown={(event) =>
-              runPreservingInputFocus(event, clearYen)
-            }
-            onPointerDownCapture={(event) =>
-              runPreservingInputFocus(event, clearYen)
-            }
-            onTouchStart={(event) =>
-              runPreservingInputFocus(event, clearYen)
-            }
-            onClick={(event) => runFallbackClick(event, clearYen)}
-            className="flex h-10 items-center gap-2 border border-[color:var(--line)] bg-white px-3 text-sm font-semibold text-[var(--ink)] transition hover:border-[var(--vermilion)]"
-          >
-            <CircleX className="size-4" />
-            Clear
-          </button>
-        </footer>
       </section>
 
       <button
         type="button"
         aria-label="Open practice and rate drawer"
         onClick={() => setDrawerOpen(true)}
-        className="fixed right-0 top-0 z-30 h-dvh w-7 opacity-0"
-      />
+        className="fixed right-0 top-0 z-30 h-dvh w-8 bg-transparent text-transparent sm:hidden"
+      >
+        Open
+      </button>
 
       <button
         type="button"
         aria-label="Close drawer"
         onClick={() => setDrawerOpen(false)}
-        className={`fixed inset-0 z-40 bg-[rgba(23,29,28,0.22)] transition-opacity duration-200 ${
-          drawerOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        className={`fixed inset-0 z-40 bg-[var(--ink)] transition-transform duration-100 ease-linear ${
+          drawerOpen ? "translate-x-0" : "pointer-events-none translate-x-full"
         }`}
       />
 
       <aside
         aria-hidden={!drawerOpen}
-        className={`fixed right-0 top-0 z-50 flex h-dvh w-[min(100vw,430px)] flex-col border-l border-[color:var(--line)] bg-[var(--drawer)] shadow-[-22px_0_60px_rgba(23,29,28,0.18)] transition-transform duration-300 ease-out ${
+        className={`fixed right-0 top-0 z-50 flex h-dvh w-[min(100vw,430px)] flex-col border-l bg-[var(--paper)] transition-transform duration-100 ease-linear ${
           drawerOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-[color:var(--line)] px-5 py-4">
-          <div>
-            <p className="text-sm font-semibold text-[var(--vermilion)]">
-              Yen Sense
-            </p>
-            <p className="text-lg font-semibold text-[var(--ink)]">
+        <div className="grid grid-cols-[1fr_48px] border-b bg-[var(--paper)]">
+          <div className="p-2">
+            <p className="zine-meta text-[10px]">Yen Sense / 引き出し</p>
+            <p className="font-serif text-3xl font-bold leading-none">
               {drawerView === "practice"
-                ? "Practice"
+                ? "Practice 練習"
                 : drawerView === "rate"
-                  ? "Rate"
-                  : "Phone"}
+                  ? "Rate レート"
+                  : "Phone 電話"}
             </p>
           </div>
           <button
             type="button"
             title="Close"
             onClick={() => setDrawerOpen(false)}
-            className="grid size-10 place-items-center border border-[color:var(--line)] bg-white text-[var(--ink)] transition hover:border-[var(--vermilion)] hover:text-[var(--vermilion)]"
+            className="grid place-items-center border-l bg-[var(--paper)] transition-colors hover:bg-[var(--accent-pop)] hover:text-[var(--paper)]"
           >
             <X className="size-5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-3 border-b border-[color:var(--line)] bg-white">
+        <div className="grid grid-cols-3 border-b bg-[var(--paper)]">
           {[
-            { view: "practice" as const, label: "Practice", icon: Brain },
-            { view: "rate" as const, label: "Rate", icon: Settings2 },
-            { view: "phone" as const, label: "Phone", icon: Smartphone },
+            { view: "practice" as const, label: "Practice 練", icon: Brain },
+            { view: "rate" as const, label: "Rate 円", icon: Settings2 },
+            { view: "phone" as const, label: "Phone 携", icon: Smartphone },
           ].map((item) => {
             const Icon = item.icon;
             const selected = drawerView === item.view;
@@ -910,10 +960,10 @@ export function YenSenseApp() {
                 type="button"
                 key={item.view}
                 onClick={() => setDrawerView(item.view)}
-                className={`flex h-14 items-center justify-center gap-2 border-r border-[color:var(--line)] text-sm font-semibold transition last:border-r-0 ${
+                className={`zine-meta flex h-12 items-center justify-center gap-1 border-r text-[10px] transition-colors last:border-r-0 ${
                   selected
-                    ? "bg-[var(--ink)] text-white"
-                    : "bg-white text-[var(--ink)] hover:bg-[var(--paper)]"
+                    ? "bg-[var(--accent-pop)] text-[var(--paper)]"
+                    : "bg-[var(--paper)] text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--paper)]"
                 }`}
               >
                 <Icon className="size-4" />
@@ -923,7 +973,10 @@ export function YenSenseApp() {
           })}
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto p-2">
+          <div className="zine-vertical zine-meta float-right ml-2 border bg-[var(--ink)] px-1 py-2 text-[10px] leading-none text-[var(--paper)]">
+            SIDE PAGE / 保存版
+          </div>
           {drawerView === "practice" ? (
             <PracticePanel yenPerUsd={rate.effectiveRate.yenPerUsd} />
           ) : null}

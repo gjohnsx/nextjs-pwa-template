@@ -1,9 +1,32 @@
 import type { Metadata, Viewport } from "next";
-import { GeistMono } from "geist/font/mono";
-import { GeistPixelSquare } from "geist/font/pixel";
-import { GeistSans } from "geist/font/sans";
+import {
+  BIZ_UDPGothic,
+  DotGothic16,
+  Shippori_Mincho,
+} from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+
+const zineSerif = Shippori_Mincho({
+  weight: ["500", "700", "800"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-zine-serif",
+});
+
+const zineGothic = BIZ_UDPGothic({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-zine-gothic",
+});
+
+const zinePixel = DotGothic16({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-zine-pixel",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -35,7 +58,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#b33a2e",
+  themeColor: "#ff003c",
   width: "device-width",
   initialScale: 1,
 };
@@ -48,7 +71,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${GeistSans.variable} ${GeistMono.variable} ${GeistPixelSquare.variable} antialiased`}
+        className={`${zineSerif.variable} ${zineGothic.variable} ${zinePixel.variable} antialiased`}
       >
         {children}
         <Toaster />
