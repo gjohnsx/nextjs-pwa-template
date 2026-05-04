@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
+  type TouchEvent as ReactTouchEvent,
   useCallback,
   useEffect,
   useMemo,
@@ -14,7 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsRight,
-  Eraser,
+  CircleX,
   RefreshCw,
   RotateCcw,
   Settings2,
@@ -434,6 +436,7 @@ function PracticePanel({
 export function YenSenseApp() {
   const inputRef = useRef<HTMLInputElement>(null);
   const ignoreClickUntilRef = useRef(0);
+  const touchActionLockRef = useRef(0);
   const [yenInput, setYenInput] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerView, setDrawerView] = useState<DrawerView>("practice");
@@ -546,21 +549,53 @@ export function YenSenseApp() {
     setYenInput("");
   }, []);
 
+  const focusYenInput = useCallback(() => {
+    inputRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  const runActionWithoutMovingFocus = useCallback(
+    (action: () => void) => {
+      action();
+      focusYenInput();
+      window.requestAnimationFrame(focusYenInput);
+    },
+    [focusYenInput],
+  );
+
   const runPreservingInputFocus = useCallback(
     (
-      event: ReactPointerEvent<HTMLButtonElement>,
+      event:
+        | ReactMouseEvent<HTMLButtonElement>
+        | ReactPointerEvent<HTMLButtonElement>
+        | ReactTouchEvent<HTMLButtonElement>,
       action: () => void,
     ) => {
       event.preventDefault();
+      event.stopPropagation();
+      const now = Date.now();
+      if (now < touchActionLockRef.current) {
+        return;
+      }
+      touchActionLockRef.current = now + 80;
       ignoreClickUntilRef.current = Date.now() + 500;
-      action();
+      runActionWithoutMovingFocus(action);
     },
-    [],
+    [runActionWithoutMovingFocus],
   );
 
-  const shouldIgnoreClick = useCallback(
-    () => Date.now() < ignoreClickUntilRef.current,
-    [],
+  const runFallbackClick = useCallback(
+    (
+      event: ReactMouseEvent<HTMLButtonElement>,
+      action: () => void,
+    ) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (Date.now() < ignoreClickUntilRef.current) {
+        return;
+      }
+      runActionWithoutMovingFocus(action);
+    },
+    [runActionWithoutMovingFocus],
   );
 
   const quickSet = QUICK_AMOUNT_SETS[quickSetIndex];
@@ -621,20 +656,22 @@ export function YenSenseApp() {
               type="button"
               aria-label="Clear yen amount"
               title="Clear yen amount"
-              onPointerDown={(event) =>
+              tabIndex={-1}
+              onMouseDown={(event) =>
                 runPreservingInputFocus(event, clearYen)
               }
-              onClick={() => {
-                if (shouldIgnoreClick()) {
-                  return;
-                }
-                clearYen();
-              }}
+              onPointerDownCapture={(event) =>
+                runPreservingInputFocus(event, clearYen)
+              }
+              onTouchStart={(event) =>
+                runPreservingInputFocus(event, clearYen)
+              }
+              onClick={(event) => runFallbackClick(event, clearYen)}
               className={`size-10 place-items-center border border-[color:var(--line)] bg-white text-[var(--ink)] transition hover:border-[var(--vermilion)] ${
                 keyboardMode ? "grid" : "hidden"
               }`}
             >
-              <Eraser className="size-5" />
+              <CircleX className="size-5" />
               <span className="sr-only">Clear</span>
             </button>
           </div>
@@ -675,10 +712,33 @@ export function YenSenseApp() {
                 aria-label="Use smaller quick amounts"
                 title="Smaller amounts"
                 disabled={quickSetIndex === 0}
-                onPointerDown={(event) => event.preventDefault()}
-                onClick={() =>
-                  setQuickSetIndex((currentIndex) =>
-                    Math.max(0, currentIndex - 1),
+                tabIndex={-1}
+                onMouseDown={(event) =>
+                  runPreservingInputFocus(event, () =>
+                    setQuickSetIndex((currentIndex) =>
+                      Math.max(0, currentIndex - 1),
+                    ),
+                  )
+                }
+                onPointerDownCapture={(event) =>
+                  runPreservingInputFocus(event, () =>
+                    setQuickSetIndex((currentIndex) =>
+                      Math.max(0, currentIndex - 1),
+                    ),
+                  )
+                }
+                onTouchStart={(event) =>
+                  runPreservingInputFocus(event, () =>
+                    setQuickSetIndex((currentIndex) =>
+                      Math.max(0, currentIndex - 1),
+                    ),
+                  )
+                }
+                onClick={(event) =>
+                  runFallbackClick(event, () =>
+                    setQuickSetIndex((currentIndex) =>
+                      Math.max(0, currentIndex - 1),
+                    ),
                   )
                 }
                 className="grid size-9 place-items-center text-[var(--ink)] transition hover:text-[var(--vermilion)] disabled:opacity-25"
@@ -693,10 +753,33 @@ export function YenSenseApp() {
                 aria-label="Use larger quick amounts"
                 title="Larger amounts"
                 disabled={quickSetIndex === QUICK_AMOUNT_SETS.length - 1}
-                onPointerDown={(event) => event.preventDefault()}
-                onClick={() =>
-                  setQuickSetIndex((currentIndex) =>
-                    Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
+                tabIndex={-1}
+                onMouseDown={(event) =>
+                  runPreservingInputFocus(event, () =>
+                    setQuickSetIndex((currentIndex) =>
+                      Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
+                    ),
+                  )
+                }
+                onPointerDownCapture={(event) =>
+                  runPreservingInputFocus(event, () =>
+                    setQuickSetIndex((currentIndex) =>
+                      Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
+                    ),
+                  )
+                }
+                onTouchStart={(event) =>
+                  runPreservingInputFocus(event, () =>
+                    setQuickSetIndex((currentIndex) =>
+                      Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
+                    ),
+                  )
+                }
+                onClick={(event) =>
+                  runFallbackClick(event, () =>
+                    setQuickSetIndex((currentIndex) =>
+                      Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
+                    ),
                   )
                 }
                 className="grid size-9 place-items-center text-[var(--ink)] transition hover:text-[var(--vermilion)] disabled:opacity-25"
@@ -711,15 +794,19 @@ export function YenSenseApp() {
               <button
                 type="button"
                 key={amount}
-                onPointerDown={(event) =>
+                tabIndex={-1}
+                onMouseDown={(event) =>
                   runPreservingInputFocus(event, () => addYen(amount))
                 }
-                onClick={() => {
-                  if (shouldIgnoreClick()) {
-                    return;
-                  }
-                  addYen(amount);
-                }}
+                onPointerDownCapture={(event) =>
+                  runPreservingInputFocus(event, () => addYen(amount))
+                }
+                onTouchStart={(event) =>
+                  runPreservingInputFocus(event, () => addYen(amount))
+                }
+                onClick={(event) =>
+                  runFallbackClick(event, () => addYen(amount))
+                }
                 className="h-9 border border-[color:var(--line)] bg-white font-mono text-xs font-semibold text-[var(--ink)] transition hover:border-[var(--vermilion)] hover:text-[var(--vermilion)]"
               >
                 +¥{formatYen(amount)}
@@ -745,18 +832,20 @@ export function YenSenseApp() {
           </div>
           <button
             type="button"
-            onPointerDown={(event) =>
+            tabIndex={-1}
+            onMouseDown={(event) =>
               runPreservingInputFocus(event, clearYen)
             }
-            onClick={() => {
-              if (shouldIgnoreClick()) {
-                return;
-              }
-              clearYen();
-            }}
+            onPointerDownCapture={(event) =>
+              runPreservingInputFocus(event, clearYen)
+            }
+            onTouchStart={(event) =>
+              runPreservingInputFocus(event, clearYen)
+            }
+            onClick={(event) => runFallbackClick(event, clearYen)}
             className="flex h-10 items-center gap-2 border border-[color:var(--line)] bg-white px-3 text-sm font-semibold text-[var(--ink)] transition hover:border-[var(--vermilion)]"
           >
-            <Eraser className="size-4" />
+            <CircleX className="size-4" />
             Clear
           </button>
         </footer>
