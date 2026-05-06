@@ -43,28 +43,28 @@ type DrawerView = "practice" | "rate" | "phone";
 
 const QUICK_AMOUNT_SETS = [
   {
-    label: "Tally 集計",
-    note: "konbini math / コンビニ足し算",
+    label: "Small",
+    note: "Konbini math",
     amounts: [25, 50, 100, 500],
   },
   {
-    label: "Meals 食事",
-    note: "cafes, transit / 喫茶と電車",
+    label: "Meals",
+    note: "Cafes and transit",
     amounts: [500, 780, 1200, 2300],
   },
   {
-    label: "Trip 旅費",
-    note: "shopping, tickets / 旅の大物",
+    label: "Trip",
+    note: "Shopping and tickets",
     amounts: [5000, 10000, 20000, 50000],
   },
 ];
 
 const STATUS_LABELS: Record<RateStatus, string> = {
-  loading: "FETCH 取得中",
-  live: "NEW 新着",
-  cached: "SAVED 保存",
-  fallback: "ROUGH 目安",
-  error: "ALERT 注意",
+  loading: "Updating",
+  live: "Live",
+  cached: "Saved",
+  fallback: "Estimate",
+  error: "Check rate",
 };
 
 function formatRateStatus({
@@ -75,7 +75,7 @@ function formatRateStatus({
   status: RateStatus;
 }) {
   if (isManual) {
-    return "SAVED 手入力";
+    return "Manual";
   }
 
   return STATUS_LABELS[status];
@@ -115,7 +115,7 @@ function PanelMeta({
   label: string;
 }) {
   return (
-    <div className="zine-meta flex items-center justify-between border-b bg-[var(--ink)] px-2 py-1 text-[10px] leading-none text-[var(--paper)]">
+    <div className="zine-meta flex items-center justify-between gap-3 text-[10px] leading-none text-[var(--muted-ink)]">
       <span>{issue}</span>
       <span>{label}</span>
     </div>
@@ -133,10 +133,10 @@ function ZineButton({
   return (
     <button
       type="button"
-      className={`flex min-h-10 items-center justify-center gap-2 border px-2 py-2 text-xs font-bold transition-colors duration-100 ease-linear ${
+      className={`flex min-h-11 items-center justify-center gap-2 rounded-[8px] border px-3 py-2 text-sm font-bold shadow-[0_1px_0_rgba(33,26,22,0.04)] transition-colors ${
         accent
-          ? "bg-[var(--accent-pop)] text-[var(--paper)] hover:bg-[var(--ink)]"
-          : "bg-[var(--paper)] text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--paper)]"
+          ? "border-[var(--accent-pop)] bg-[var(--accent-pop)] text-[var(--panel)] hover:border-[var(--ink)] hover:bg-[var(--ink)]"
+          : "border-[var(--line)] bg-[var(--panel)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--field)]"
       } ${className}`}
       {...props}
     >
@@ -212,20 +212,20 @@ function InstallPanel() {
   }
 
   return (
-    <section className="grid gap-2">
-      <PanelMeta issue="P.03" label="PHONE APP 電話" />
-      <div className="grid grid-cols-[78px_1fr] border bg-[var(--paper)]">
-        <div className="grid place-items-center border-r p-2">
-          <Smartphone className="size-8 text-[var(--accent-pop)]" />
+    <section className="grid gap-4">
+      <PanelMeta issue="Phone" label="Install" />
+      <div className="grid grid-cols-[68px_1fr] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
+        <div className="grid place-items-center border-r border-[var(--line)] bg-[var(--sage)] p-3">
+          <Smartphone className="size-7 text-[var(--ink)]" />
         </div>
-        <div className="p-2">
-          <p className="font-serif text-2xl font-bold leading-none">
-            Home Screen ホーム
+        <div className="p-3">
+          <p className="font-serif text-2xl font-bold leading-none text-[var(--ink)]">
+            Home Screen
           </p>
-          <p className="zine-meta mt-2 text-[10px]">
+          <p className="zine-meta mt-2 text-[10px] text-[var(--muted-ink)]">
             {isStandalone
-              ? "RUNNING STANDALONE / 保存済"
-              : "PWA READY / 追加可能"}
+              ? "Running standalone"
+              : "PWA ready"}
           </p>
         </div>
       </div>
@@ -238,8 +238,8 @@ function InstallPanel() {
       ) : null}
 
       {isIOS && !isStandalone ? (
-        <p className="zine-meta border px-2 py-1 text-[10px]">
-          IOS SAFARI: SHARE THEN ADD / 共有から追加
+        <p className="zine-meta rounded-[8px] border border-[var(--line)] bg-[var(--panel)] px-3 py-2 text-[10px] text-[var(--muted-ink)]">
+          iOS Safari: Share, then Add to Home Screen.
         </p>
       ) : null}
     </section>
@@ -281,13 +281,16 @@ function RatePanel({
   }
 
   return (
-    <section className="grid gap-2">
-      <PanelMeta issue="P.02" label="RATE DESK レート" />
-      <label htmlFor="manual-rate" className="zine-meta text-[10px]">
-        Yen per dollar / 円ドル
+    <section className="grid gap-4">
+      <PanelMeta issue="Rate" label="Exchange" />
+      <label
+        htmlFor="manual-rate"
+        className="zine-meta text-[10px] text-[var(--muted-ink)]"
+      >
+        Yen per dollar
       </label>
-      <div className="grid grid-cols-[42px_1fr] border bg-[var(--paper)]">
-        <span className="grid place-items-center border-r font-serif text-4xl font-bold text-[var(--accent-pop)]">
+      <div className="grid grid-cols-[44px_1fr] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
+        <span className="grid place-items-center border-r border-[var(--line)] font-serif text-3xl font-bold text-[var(--accent-pop)]">
           ¥
         </span>
         <input
@@ -295,30 +298,30 @@ function RatePanel({
           inputMode="decimal"
           value={rateInput}
           onChange={(event) => setRateInput(event.target.value)}
-          className="h-16 min-w-0 bg-transparent px-2 font-mono text-5xl font-bold leading-none text-[var(--ink)] outline-none"
+          className="h-16 min-w-0 bg-transparent px-3 font-mono text-5xl font-bold leading-none text-[var(--ink)] outline-none placeholder:text-[var(--faint-ink)]"
         />
       </div>
 
       <div className="grid grid-cols-[1.25fr_0.75fr] gap-2">
         <ZineButton onClick={applyManualRate} accent>
           <Check className="size-4" />
-          Use 採用
+          Use
         </ZineButton>
         <ZineButton onClick={() => onManualRateChange(null)}>
           <RotateCcw className="size-4" />
-          Live 生
+          Live
         </ZineButton>
       </div>
 
-      <div className="grid border bg-[var(--paper)]">
-        <PanelMeta issue="SOURCE ID: FX-150" label={STATUS_LABELS[status]} />
-        <p className="px-2 py-2 text-sm leading-tight">
+      <div className="grid gap-2 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] p-3">
+        <PanelMeta issue="Source" label={STATUS_LABELS[status]} />
+        <p className="text-sm leading-tight text-[var(--muted-ink)]">
           {liveRate
-            ? `Last fetched rate / 取得値: ¥${formatYenPerUsd(liveRate)} = $1.`
-            : `No live rate / オフライン目安: ¥${formatYenPerUsd(FALLBACK_YEN_PER_USD)} = $1.`}
+            ? `Last fetched: ¥${formatYenPerUsd(liveRate)} = $1.`
+            : `Offline estimate: ¥${formatYenPerUsd(FALLBACK_YEN_PER_USD)} = $1.`}
         </p>
         {errorMessage ? (
-          <p className="border-t px-2 py-2 text-sm font-bold text-[var(--accent-pop)]">
+          <p className="border-t border-[var(--line)] pt-2 text-sm font-bold text-[var(--accent-pop)]">
             {errorMessage}
           </p>
         ) : null}
@@ -327,10 +330,10 @@ function RatePanel({
       <div className="grid grid-cols-2 gap-2">
         <ZineButton onClick={onRefresh}>
           <RefreshCw className="size-4" />
-          Refresh 更新
+          Refresh
         </ZineButton>
         <ZineButton onClick={onFallback}>
-          ¥150 Mode 目安
+          ¥150
         </ZineButton>
       </div>
     </section>
@@ -367,44 +370,50 @@ function PracticePanel({
   }
 
   const ratingCopy = {
-    nailed: "NEW 新着",
-    strong: "SAVED 保存",
-    close: "CLOSE 近い",
-    repeat: "REPEAT 復習",
+    nailed: "Nailed",
+    strong: "Strong",
+    close: "Close",
+    repeat: "Repeat",
   } as const;
 
   return (
-    <section className="grid gap-2">
-      <PanelMeta issue="P.01" label="MENTAL DRILL 暗算" />
-      <div className="grid grid-cols-4 border bg-[var(--paper)] text-center">
+    <section className="grid gap-4">
+      <PanelMeta issue="Practice" label="Mental math" />
+      <div className="grid grid-cols-4 overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--panel)] text-center">
         {[
           ["due", quiz.summary.dueNow],
           ["seen", quiz.summary.practiced],
           ["solid", quiz.summary.mastered],
           ["streak", quiz.summary.bestStreak],
         ].map(([label, value]) => (
-          <div className="border-r p-2 last:border-r-0" key={label}>
-            <p className="font-mono text-2xl leading-none">{value}</p>
-            <p className="zine-meta mt-1 text-[9px]">{label} 件</p>
+          <div className="border-r border-[var(--line)] p-3 last:border-r-0" key={label}>
+            <p className="font-mono text-2xl leading-none text-[var(--ink)]">
+              {value}
+            </p>
+            <p className="zine-meta mt-1 text-[9px] text-[var(--muted-ink)]">
+              {label}
+            </p>
           </div>
         ))}
       </div>
 
-      <div className="relative grid border bg-[var(--paper)] p-2">
-        <span className="zine-sticker absolute right-2 top-2 px-2 py-1 text-[10px]">
-          Quiz 問
-        </span>
-        <p className="zine-meta text-[10px]">{quiz.currentAmount.label}</p>
-        <p className="mt-1 font-serif text-6xl font-bold leading-none">
+      <div className="grid rounded-[8px] border border-[var(--line)] bg-[var(--field)] p-4">
+        <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
+          {quiz.currentAmount.label}
+        </p>
+        <p className="mt-2 font-serif text-6xl font-bold leading-none text-[var(--ink)]">
           ¥{formatYen(quiz.currentAmount.yen)}
         </p>
       </div>
 
-      <label htmlFor="quiz-guess" className="zine-meta text-[10px]">
-        Your USD estimate / ドル予想
+      <label
+        htmlFor="quiz-guess"
+        className="zine-meta text-[10px] text-[var(--muted-ink)]"
+      >
+        USD estimate
       </label>
-      <div className="grid grid-cols-[42px_1fr] border bg-[var(--paper)]">
-        <span className="grid place-items-center border-r font-serif text-4xl font-bold text-[var(--accent-pop)]">
+      <div className="grid grid-cols-[44px_1fr] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
+        <span className="grid place-items-center border-r border-[var(--line)] font-serif text-3xl font-bold text-[var(--accent-pop)]">
           $
         </span>
         <input
@@ -418,18 +427,18 @@ function PracticePanel({
           }}
           inputMode="decimal"
           placeholder="0.00"
-          className="h-14 min-w-0 bg-transparent px-2 font-mono text-4xl text-[var(--ink)] outline-none placeholder:text-[var(--ink)]"
+          className="h-14 min-w-0 bg-transparent px-3 font-mono text-4xl text-[var(--ink)] outline-none placeholder:text-[var(--faint-ink)]"
         />
       </div>
 
       {result ? (
-        <div className="grid border bg-[var(--paper)]">
+        <div className="grid gap-2 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] p-3">
           <PanelMeta issue={`BOX ${result.stats.boxLevel}`} label={ratingCopy[result.rating]} />
-          <p className="px-2 py-1 font-mono text-4xl leading-none">
+          <p className="font-mono text-4xl leading-none text-[var(--ink)]">
             {formatUsdCompact(result.exactUsd)}
           </p>
-          <p className="zine-meta border-t px-2 py-1 text-[10px]">
-            {result.errorPercent.toFixed(1)}% AWAY / 誤差
+          <p className="zine-meta border-t border-[var(--line)] pt-2 text-[10px] text-[var(--muted-ink)]">
+            {result.errorPercent.toFixed(1)}% away
           </p>
         </div>
       ) : null}
@@ -439,12 +448,12 @@ function PracticePanel({
           {result ? (
             <>
               <ChevronsRight className="size-4" />
-              Next 次
+              Next
             </>
           ) : (
             <>
               <Check className="size-4" />
-              Check 確認
+              Check
             </>
           )}
         </ZineButton>
@@ -635,69 +644,71 @@ export function YenSenseApp() {
 
   return (
     <main className="relative min-h-dvh overflow-x-hidden bg-[var(--paper)] text-[var(--ink)]">
-      <section className="mx-auto grid min-h-dvh w-full max-w-[680px] grid-cols-[14px_1fr] gap-1.5 border-x px-1.5 py-1.5 sm:grid-cols-[18px_1fr] sm:gap-2 sm:px-2">
-        <aside className="zine-vertical zine-meta border bg-[var(--ink)] px-0.5 py-2 text-[9px] leading-none text-[var(--paper)]">
-          YEN SENSE / 東京換算
-        </aside>
-
-        <div className={`grid min-h-[calc(100dvh-0.75rem)] gap-1.5 sm:gap-2 ${keyboardMode ? "content-start" : ""}`}>
-          <header className="border bg-[var(--paper)]">
-            <PanelMeta issue="ISSUE 1998-04" label="TRAVEL MONEY 旅の円" />
-            <div className="grid grid-cols-[1fr_auto] items-end gap-2 p-2">
-              <div className="min-w-0">
-                <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                  <span className="zine-sticker inline-block px-2 py-1 text-[10px]">
-                    {statusLabel}
-                  </span>
-                  <span className="zine-meta text-[10px]">
-                    JPY to USD / 東京メモ
-                  </span>
-                </div>
-                <h1 className="font-serif text-[34px] font-extrabold leading-[0.85] sm:text-[44px]">
-                  Yen Sense
-                </h1>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDrawerOpen(true)}
-                className="zine-meta border bg-[var(--accent-pop)] px-2 py-2 text-[10px] text-[var(--paper)] transition-colors hover:bg-[var(--ink)]"
-              >
-                Menu メニュー
-              </button>
+      <section className="mx-auto flex min-h-dvh w-full max-w-[540px] flex-col px-4 py-4 sm:px-6 sm:py-6">
+        <div
+          className={`grid flex-1 content-start gap-4 ${
+            keyboardMode ? "gap-3" : "sm:gap-5"
+          }`}
+        >
+          <header className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
+                Tokyo pocket converter
+              </p>
+              <h1 className="mt-1 font-serif text-[34px] font-extrabold leading-none text-[var(--ink)] sm:text-[42px]">
+                Yen Sense
+              </h1>
             </div>
+            <button
+              type="button"
+              aria-label="Open menu"
+              title="Open menu"
+              onClick={() => setDrawerOpen(true)}
+              className="grid size-10 shrink-0 place-items-center rounded-[8px] border border-[var(--line)] bg-[var(--panel)] text-[var(--ink)] shadow-[0_1px_0_rgba(33,26,22,0.04)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--field)]"
+            >
+              <Settings2 className="size-4" />
+            </button>
           </header>
 
-          <section className="grid grid-cols-[1fr_74px] gap-2 sm:grid-cols-[1.55fr_0.45fr]">
-            <div className="grid border bg-[var(--paper)]">
-              <PanelMeta issue="P.01 RESULT" label="USD 表示" />
-              <div className="p-2">
-                <p className="zine-meta text-[10px]">Dollar result / ドル</p>
-                <output
-                  aria-live="polite"
-                  className={`block break-words font-serif font-extrabold leading-none ${
-                    keyboardMode ? "text-5xl" : "text-[58px] sm:text-[88px]"
-                  }`}
-                >
-                  {formatUsd(usdAmount)}
-                </output>
-              </div>
+          <section className="grid gap-4 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_16px_45px_rgba(33,26,22,0.06)]">
+            <div className="flex items-center justify-between gap-3">
+              <span className="zine-sticker inline-flex px-2.5 py-1 text-[10px]">
+                {statusLabel}
+              </span>
+              <span className="zine-meta text-[10px] text-[var(--muted-ink)]">
+                JPY to USD
+              </span>
             </div>
-
-            <div className="grid border bg-[var(--paper)] text-center">
-              <PanelMeta issue="JPY/USD" label="RATE" />
-              <div className="grid content-center p-1">
-                <p className="font-mono text-3xl leading-none sm:text-4xl">
-                  {formatYenPerUsd(rate.effectiveRate.yenPerUsd)}
-                </p>
-                <p className="zine-meta mt-1 text-[9px]">円/ドル</p>
-              </div>
+            <div>
+              <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
+                Dollar result
+              </p>
+              <output
+                aria-live="polite"
+                className={`mt-2 block break-words font-serif font-extrabold leading-none text-[var(--ink)] ${
+                  keyboardMode ? "text-5xl" : "text-[64px] sm:text-[92px]"
+                }`}
+              >
+                {formatUsd(usdAmount)}
+              </output>
+            </div>
+            <div className="flex items-center justify-between gap-3 rounded-[8px] bg-[var(--sage)] px-3 py-2 text-sm text-[var(--ink)]">
+              <span className="font-mono text-lg leading-none">
+                ¥{formatYenPerUsd(rate.effectiveRate.yenPerUsd)}
+              </span>
+              <span className="zine-meta text-[10px] text-[var(--muted-ink)]">
+                per $1
+              </span>
             </div>
           </section>
 
-          <section className="grid gap-2 border bg-[var(--paper)] p-2">
+          <section className="grid gap-3 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] p-3">
             <div className="flex items-center justify-between gap-2">
-              <label htmlFor="yen-input" className="zine-meta text-[10px]">
-                Yen amount / 円を入力
+              <label
+                htmlFor="yen-input"
+                className="zine-meta text-[10px] text-[var(--muted-ink)]"
+              >
+                Yen amount
               </label>
               <button
                 type="button"
@@ -714,7 +725,7 @@ export function YenSenseApp() {
                   runPreservingInputFocus(event, clearYen)
                 }
                 onClick={(event) => runFallbackClick(event, clearYen)}
-                className={`grid size-8 place-items-center border bg-[var(--paper)] transition-colors hover:bg-[var(--accent-pop)] hover:text-[var(--paper)] ${
+                className={`grid size-8 place-items-center rounded-[8px] border border-[var(--line)] bg-[var(--field)] text-[var(--muted-ink)] transition-colors hover:border-[var(--accent-pop)] hover:text-[var(--accent-pop)] ${
                   keyboardMode ? "" : "sm:hidden"
                 }`}
               >
@@ -722,8 +733,8 @@ export function YenSenseApp() {
               </button>
             </div>
 
-            <div className="grid grid-cols-[42px_1fr] border bg-[var(--paper)]">
-              <span className="grid place-items-center border-r font-serif text-5xl font-bold text-[var(--accent-pop)]">
+            <div className="grid grid-cols-[46px_1fr] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
+              <span className="grid place-items-center border-r border-[var(--line)] font-serif text-4xl font-bold text-[var(--accent-pop)]">
                 ¥
               </span>
               <input
@@ -738,7 +749,7 @@ export function YenSenseApp() {
                 autoComplete="off"
                 autoCorrect="off"
                 placeholder="0"
-                className={`min-w-0 bg-transparent px-2 font-mono font-bold leading-none text-[var(--ink)] outline-none placeholder:text-[var(--ink)] ${
+                className={`min-w-0 bg-transparent px-3 font-mono font-bold leading-none text-[var(--ink)] outline-none placeholder:text-[var(--faint-ink)] ${
                   keyboardMode ? "h-16 text-5xl" : "h-20 text-6xl sm:text-7xl"
                 }`}
               />
@@ -746,10 +757,14 @@ export function YenSenseApp() {
 
             <div className="grid grid-cols-[1fr_auto] gap-2">
               <div>
-                <p className="zine-meta text-[10px]">Quick adds / 早足し</p>
-                <p className="text-xs leading-tight">{quickSet.note}</p>
+                <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
+                  Quick adds
+                </p>
+                <p className="text-xs leading-tight text-[var(--muted-ink)]">
+                  {quickSet.note}
+                </p>
               </div>
-              <div className="grid grid-cols-[32px_76px_32px] border bg-[var(--paper)]">
+              <div className="grid grid-cols-[34px_82px_34px] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
                 <button
                   type="button"
                   aria-label="Use smaller quick amounts"
@@ -784,11 +799,11 @@ export function YenSenseApp() {
                       ),
                     )
                   }
-                  className="grid place-items-center border-r transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)] disabled:text-[var(--ink)]"
+                  className="grid place-items-center border-r border-[var(--line)] text-[var(--muted-ink)] transition-colors hover:bg-[var(--sage)] hover:text-[var(--ink)] disabled:text-[var(--faint-ink)]"
                 >
                   <ChevronLeft className="size-4" />
                 </button>
-                <span className="zine-meta grid place-items-center border-r px-1 text-center text-[9px]">
+                <span className="zine-meta grid place-items-center border-r border-[var(--line)] px-1 text-center text-[9px] text-[var(--muted-ink)]">
                   {quickSet.label}
                 </span>
                 <button
@@ -825,14 +840,14 @@ export function YenSenseApp() {
                       ),
                     )
                   }
-                  className="grid place-items-center transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)] disabled:text-[var(--ink)]"
+                  className="grid place-items-center text-[var(--muted-ink)] transition-colors hover:bg-[var(--sage)] hover:text-[var(--ink)] disabled:text-[var(--faint-ink)]"
                 >
                   <ChevronRight className="size-4" />
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-1">
+            <div className="grid grid-cols-4 gap-2">
               {quickSet.amounts.map((amount) => (
                 <button
                   type="button"
@@ -850,7 +865,7 @@ export function YenSenseApp() {
                   onClick={(event) =>
                     runFallbackClick(event, () => addYen(amount))
                   }
-                  className="zine-meta h-10 border bg-[var(--paper)] text-[10px] transition-colors hover:bg-[var(--accent-pop)] hover:text-[var(--paper)]"
+                  className="zine-meta h-11 rounded-[8px] border border-[var(--line)] bg-[var(--field)] text-[10px] text-[var(--ink)] transition-colors hover:border-[var(--accent-pop)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-pop)]"
                 >
                   +¥{formatYen(amount)}
                 </button>
@@ -859,17 +874,17 @@ export function YenSenseApp() {
           </section>
 
           <footer
-            className={`grid grid-cols-[1fr_auto] items-stretch gap-2 ${
+            className={`grid grid-cols-[1fr_auto] items-stretch gap-3 ${
               keyboardMode ? "hidden" : ""
             }`}
           >
-            <div className="border bg-[var(--paper)] px-2 py-1">
-              <p className="zine-meta text-[10px]">
+            <div className="rounded-[8px] border border-[var(--line)] bg-[var(--panel)] px-3 py-2">
+              <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
                 {rate.status === "loading"
-                  ? "Refreshing rate / 更新中"
-                  : "Ready offline / オフライン可"}
+                  ? "Refreshing rate"
+                  : "Ready offline"}
               </p>
-              <p className="zine-meta text-[10px]">
+              <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
                 FETCHED: {formatMetaDate(rate.effectiveRate.fetchedAt)}
               </p>
               {rate.errorMessage ? (
@@ -891,10 +906,10 @@ export function YenSenseApp() {
                 runPreservingInputFocus(event, clearYen)
               }
               onClick={(event) => runFallbackClick(event, clearYen)}
-              className="flex min-w-20 items-center justify-center gap-1 border bg-[var(--paper)] px-2 text-xs font-bold transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]"
+              className="flex min-w-20 items-center justify-center gap-1 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] px-3 text-xs font-bold text-[var(--ink)] transition-colors hover:border-[var(--accent-pop)] hover:text-[var(--accent-pop)]"
             >
               <CircleX className="size-4" />
-              Clear 消
+              Clear
             </button>
           </footer>
         </div>
@@ -904,43 +919,46 @@ export function YenSenseApp() {
         type="button"
         aria-label="Close drawer"
         onClick={() => setDrawerOpen(false)}
-        className={`fixed inset-0 z-40 bg-[var(--ink)] transition-transform duration-100 ease-linear ${
-          drawerOpen ? "translate-x-0" : "pointer-events-none translate-x-full"
+        className={`fixed inset-0 z-40 bg-[rgba(33,26,22,0.28)] backdrop-blur-[1px] transition-opacity duration-200 ${
+          drawerOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
       <aside
         aria-hidden={!drawerOpen}
-        className={`fixed right-0 top-0 z-50 flex h-dvh w-[min(100vw,430px)] flex-col border-l bg-[var(--paper)] transition-transform duration-100 ease-linear ${
+        className={`fixed right-0 top-0 z-50 flex h-dvh w-[min(100vw,430px)] flex-col border-l border-[var(--line)] bg-[var(--drawer)] shadow-[-24px_0_60px_rgba(33,26,22,0.14)] transition-transform duration-200 ease-out ${
           drawerOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="grid grid-cols-[1fr_48px] border-b bg-[var(--paper)]">
-          <div className="p-2">
-            <p className="zine-meta text-[10px]">Yen Sense / 引き出し</p>
-            <p className="font-serif text-3xl font-bold leading-none">
+        <div className="grid grid-cols-[1fr_48px] border-b border-[var(--line)] bg-[var(--drawer)]">
+          <div className="p-4">
+            <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
+              Yen Sense
+            </p>
+            <p className="mt-1 font-serif text-3xl font-bold leading-none text-[var(--ink)]">
               {drawerView === "practice"
-                ? "Practice 練習"
+                ? "Practice"
                 : drawerView === "rate"
-                  ? "Rate レート"
-                  : "Phone 電話"}
+                  ? "Rate"
+                  : "Phone"}
             </p>
           </div>
           <button
             type="button"
             title="Close"
+            aria-label="Close menu"
             onClick={() => setDrawerOpen(false)}
-            className="grid place-items-center border-l bg-[var(--paper)] transition-colors hover:bg-[var(--accent-pop)] hover:text-[var(--paper)]"
+            className="grid place-items-center border-l border-[var(--line)] bg-[var(--drawer)] text-[var(--muted-ink)] transition-colors hover:bg-[var(--accent-soft)] hover:text-[var(--accent-pop)]"
           >
             <X className="size-5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-3 border-b bg-[var(--paper)]">
+        <div className="grid grid-cols-3 gap-2 border-b border-[var(--line)] bg-[var(--drawer)] p-3">
           {[
-            { view: "practice" as const, label: "Practice 練", icon: Brain },
-            { view: "rate" as const, label: "Rate 円", icon: Settings2 },
-            { view: "phone" as const, label: "Phone 携", icon: Smartphone },
+            { view: "practice" as const, label: "Practice", icon: Brain },
+            { view: "rate" as const, label: "Rate", icon: Settings2 },
+            { view: "phone" as const, label: "Phone", icon: Smartphone },
           ].map((item) => {
             const Icon = item.icon;
             const selected = drawerView === item.view;
@@ -950,10 +968,10 @@ export function YenSenseApp() {
                 type="button"
                 key={item.view}
                 onClick={() => setDrawerView(item.view)}
-                className={`zine-meta flex h-12 items-center justify-center gap-1 border-r text-[10px] transition-colors last:border-r-0 ${
+                className={`zine-meta flex h-10 items-center justify-center gap-1 rounded-[8px] border text-[10px] transition-colors ${
                   selected
-                    ? "bg-[var(--accent-pop)] text-[var(--paper)]"
-                    : "bg-[var(--paper)] text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--paper)]"
+                    ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--panel)]"
+                    : "border-[var(--line)] bg-[var(--panel)] text-[var(--muted-ink)] hover:border-[var(--ink)] hover:text-[var(--ink)]"
                 }`}
               >
                 <Icon className="size-4" />
@@ -963,10 +981,7 @@ export function YenSenseApp() {
           })}
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-2">
-          <div className="zine-vertical zine-meta float-right ml-2 border bg-[var(--ink)] px-1 py-2 text-[10px] leading-none text-[var(--paper)]">
-            SIDE PAGE / 保存版
-          </div>
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">
           {drawerView === "practice" ? (
             <PracticePanel yenPerUsd={rate.effectiveRate.yenPerUsd} />
           ) : null}
