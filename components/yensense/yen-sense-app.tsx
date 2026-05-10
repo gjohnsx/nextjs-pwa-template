@@ -14,6 +14,7 @@ import {
   ChevronsRight,
   CircleX,
   Delete,
+  Plus,
   RefreshCw,
   RotateCcw,
   Settings2,
@@ -71,7 +72,7 @@ const KEYPAD_ROWS = [
   ["7", "8", "9", 500],
   ["4", "5", "6", 100],
   ["1", "2", "3", 50],
-  ["00", "0", "backspace", 25],
+  ["00", "0", "plus", 25],
 ] as const;
 
 function formatRateStatus({
@@ -513,17 +514,21 @@ function PracticePanel({
 
 export function YenSenseApp() {
   const [yenInput, setYenInput] = useState("");
+  const [storedYenTotal, setStoredYenTotal] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerView, setDrawerView] = useState<DrawerView>("practice");
   const [quickSetIndex, setQuickSetIndex] = useState(0);
   const rate = useYenRate();
-  const yenAmount = parseYenInput(yenInput);
+  const currentYenEntry = parseYenInput(yenInput);
+  const yenAmount = Math.min(storedYenTotal + currentYenEntry, MAX_YEN_AMOUNT);
   const usdAmount = convertYenToUsd(yenAmount, rate.effectiveRate.yenPerUsd);
   const quickSet = QUICK_AMOUNT_SETS[quickSetIndex];
   const statusLabel = formatRateStatus({
     isManual: rate.effectiveRate.isManual,
     status: rate.status,
   });
+  const displayYenInput = yenInput || formatYenInput(storedYenTotal);
+  const hasAddition = storedYenTotal > 0;
 
   useEffect(() => {
     registerAppShell();
@@ -542,26 +547,37 @@ export function YenSenseApp() {
   }, []);
 
   const backspaceYen = useCallback(() => {
+    if (!yenInput) {
+      const nextStoredDigits = String(storedYenTotal).slice(0, -1);
+      setStoredYenTotal(Number.parseInt(nextStoredDigits, 10) || 0);
+      return;
+    }
+
     setYenInput((currentValue) => {
       const nextDigits = currentValue.replace(/\D/g, "").slice(0, -1);
       const nextAmount = Number.parseInt(nextDigits, 10) || 0;
 
       return formatYenInput(nextAmount);
     });
-  }, []);
+  }, [storedYenTotal, yenInput]);
 
   const addYen = useCallback((amount: number) => {
-    setYenInput((currentValue) => {
-      const nextValue = Math.min(
-        parseYenInput(currentValue) + amount,
-        MAX_YEN_AMOUNT,
-      );
-      return formatYenInput(nextValue);
-    });
-  }, []);
+    setStoredYenTotal(Math.min(yenAmount + amount, MAX_YEN_AMOUNT));
+    setYenInput("");
+  }, [yenAmount]);
+
+  const commitAddition = useCallback(() => {
+    if (!currentYenEntry) {
+      return;
+    }
+
+    setStoredYenTotal(yenAmount);
+    setYenInput("");
+  }, [currentYenEntry, yenAmount]);
 
   const clearYen = useCallback(() => {
     setYenInput("");
+    setStoredYenTotal(0);
   }, []);
 
   const stepQuickSet = useCallback((direction: -1 | 1) => {
@@ -601,6 +617,12 @@ export function YenSenseApp() {
         return;
       }
 
+      if (event.key === "+" || event.key === "Enter") {
+        event.preventDefault();
+        commitAddition();
+        return;
+      }
+
       if (event.key === "Delete") {
         event.preventDefault();
         clearYen();
@@ -609,7 +631,7 @@ export function YenSenseApp() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [appendYenDigits, backspaceYen, clearYen, drawerOpen]);
+  }, [appendYenDigits, backspaceYen, clearYen, commitAddition, drawerOpen]);
 
   useEffect(() => {
     let startX = 0;
@@ -739,10 +761,10 @@ export function YenSenseApp() {
                 id="yen-display"
                 aria-live="polite"
                 className={`flex h-16 min-w-0 items-center overflow-hidden px-3 font-mono text-[clamp(2rem,9vw,46px)] font-bold leading-none ${
-                  yenInput ? "text-[var(--ink)]" : "text-[var(--faint-ink)]"
+                  displayYenInput ? "text-[var(--ink)]" : "text-[var(--faint-ink)]"
                 }`}
               >
-                {yenInput || "0"}
+                {displayYenInput || "0"}
               </output>
               <button
                 type="button"
@@ -754,6 +776,19 @@ export function YenSenseApp() {
                 <Delete className="size-4" />
               </button>
             </div>
+
+            {hasAddition ? (
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-[8px] bg-[var(--sage)] px-3 py-2 text-[var(--muted-ink)]">
+                <span className="zine-meta text-[9px]">
+                  Subtotal ¥{formatYen(storedYenTotal)}
+                </span>
+                <span className="zine-meta text-[9px]">
+                  {currentYenEntry
+                    ? `Total ¥${formatYen(yenAmount)}`
+                    : "+ next"}
+                </span>
+              </div>
+            ) : null}
 
             <div className="grid grid-cols-[1fr_auto] gap-2">
               <div>
@@ -807,17 +842,17 @@ export function YenSenseApp() {
                     );
                   }
 
-                  if (key === "backspace") {
+                  if (key === "plus") {
                     return (
                       <button
                         type="button"
                         key={key}
-                        aria-label="Backspace yen amount"
-                        title="Backspace"
-                        onClick={backspaceYen}
-                        className="grid h-[52px] place-items-center rounded-[8px] border border-[var(--line)] bg-[var(--field)] text-[var(--muted-ink)] shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--sage)] hover:text-[var(--ink)]"
+                        aria-label="Add current yen item"
+                        title="Add current yen item"
+                        onClick={commitAddition}
+                        className="grid h-[52px] place-items-center rounded-[8px] border border-[var(--accent-pop)] bg-[var(--accent-soft)] text-[var(--accent-pop)] shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_1px_0_rgba(33,26,22,0.04)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--panel)]"
                       >
-                        <Delete className="size-4" />
+                        <Plus className="size-5" />
                       </button>
                     );
                   }
