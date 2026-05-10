@@ -1,13 +1,9 @@
 "use client";
 
 import {
-  type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
-  type TouchEvent as ReactTouchEvent,
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import {
@@ -17,6 +13,7 @@ import {
   ChevronRight,
   ChevronsRight,
   CircleX,
+  Delete,
   RefreshCw,
   RotateCcw,
   Settings2,
@@ -67,6 +64,16 @@ const STATUS_LABELS: Record<RateStatus, string> = {
   error: "Check rate",
 };
 
+const DIGIT_LIMIT = 9;
+const MAX_YEN_AMOUNT = 10 ** DIGIT_LIMIT - 1;
+
+const KEYPAD_ROWS = [
+  ["7", "8", "9", 500],
+  ["4", "5", "6", 100],
+  ["1", "2", "3", 50],
+  ["00", "0", "backspace", 25],
+] as const;
+
 function formatRateStatus({
   isManual,
   status,
@@ -96,6 +103,28 @@ function formatMetaDate(value: number | null) {
 
 function registerAppShell() {
   if (!("serviceWorker" in navigator)) {
+    return;
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) =>
+        Promise.all(
+          registrations.map((registration) => registration.unregister()),
+        ),
+      )
+      .catch(() => {});
+
+    if ("caches" in window) {
+      caches
+        .keys()
+        .then((cacheNames) =>
+          Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName))),
+        )
+        .catch(() => {});
+    }
+
     return;
   }
 
@@ -142,6 +171,16 @@ function ZineButton({
     >
       {children}
     </button>
+  );
+}
+
+function isEditableTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  return Boolean(
+    target.closest("input, textarea, select, [contenteditable='true']"),
   );
 }
 
@@ -473,14 +512,10 @@ function PracticePanel({
 }
 
 export function YenSenseApp() {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const ignoreClickUntilRef = useRef(0);
-  const touchActionLockRef = useRef(0);
   const [yenInput, setYenInput] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerView, setDrawerView] = useState<DrawerView>("practice");
   const [quickSetIndex, setQuickSetIndex] = useState(0);
-  const [keyboardMode, setKeyboardMode] = useState(false);
   const rate = useYenRate();
   const yenAmount = parseYenInput(yenInput);
   const usdAmount = convertYenToUsd(yenAmount, rate.effectiveRate.yenPerUsd);
@@ -492,27 +527,50 @@ export function YenSenseApp() {
 
   useEffect(() => {
     registerAppShell();
-    window.setTimeout(() => inputRef.current?.focus(), 200);
   }, []);
 
-  useEffect(() => {
-    const viewport = window.visualViewport;
-    if (!viewport) {
-      return;
-    }
+  const appendYenDigits = useCallback((digits: string) => {
+    setYenInput((currentValue) => {
+      const currentDigits = currentValue.replace(/\D/g, "");
+      const nextDigits = `${currentDigits}${digits}`
+        .replace(/^0+(?=\d)/, "")
+        .slice(0, DIGIT_LIMIT);
+      const nextAmount = Number.parseInt(nextDigits, 10) || 0;
 
-    const syncKeyboardMode = () => {
-      setKeyboardMode(viewport.height < window.innerHeight * 0.78);
-    };
+      return formatYenInput(nextAmount);
+    });
+  }, []);
 
-    syncKeyboardMode();
-    viewport.addEventListener("resize", syncKeyboardMode);
-    viewport.addEventListener("scroll", syncKeyboardMode);
+  const backspaceYen = useCallback(() => {
+    setYenInput((currentValue) => {
+      const nextDigits = currentValue.replace(/\D/g, "").slice(0, -1);
+      const nextAmount = Number.parseInt(nextDigits, 10) || 0;
 
-    return () => {
-      viewport.removeEventListener("resize", syncKeyboardMode);
-      viewport.removeEventListener("scroll", syncKeyboardMode);
-    };
+      return formatYenInput(nextAmount);
+    });
+  }, []);
+
+  const addYen = useCallback((amount: number) => {
+    setYenInput((currentValue) => {
+      const nextValue = Math.min(
+        parseYenInput(currentValue) + amount,
+        MAX_YEN_AMOUNT,
+      );
+      return formatYenInput(nextValue);
+    });
+  }, []);
+
+  const clearYen = useCallback(() => {
+    setYenInput("");
+  }, []);
+
+  const stepQuickSet = useCallback((direction: -1 | 1) => {
+    setQuickSetIndex((currentIndex) =>
+      Math.min(
+        QUICK_AMOUNT_SETS.length - 1,
+        Math.max(0, currentIndex + direction),
+      ),
+    );
   }, []);
 
   useEffect(() => {
@@ -520,11 +578,38 @@ export function YenSenseApp() {
       if (event.key === "Escape") {
         setDrawerOpen(false);
       }
+
+      if (
+        drawerOpen ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        isEditableTarget(event.target)
+      ) {
+        return;
+      }
+
+      if (/^\d$/.test(event.key)) {
+        event.preventDefault();
+        appendYenDigits(event.key);
+        return;
+      }
+
+      if (event.key === "Backspace") {
+        event.preventDefault();
+        backspaceYen();
+        return;
+      }
+
+      if (event.key === "Delete") {
+        event.preventDefault();
+        clearYen();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [appendYenDigits, backspaceYen, clearYen, drawerOpen]);
 
   useEffect(() => {
     let startX = 0;
@@ -582,74 +667,10 @@ export function YenSenseApp() {
     };
   }, [drawerOpen]);
 
-  const addYen = useCallback((amount: number) => {
-    setYenInput((currentValue) => {
-      const nextValue = parseYenInput(currentValue) + amount;
-      return formatYenInput(nextValue);
-    });
-  }, []);
-
-  const clearYen = useCallback(() => {
-    setYenInput("");
-  }, []);
-
-  const focusYenInput = useCallback(() => {
-    inputRef.current?.focus({ preventScroll: true });
-  }, []);
-
-  const runActionWithoutMovingFocus = useCallback(
-    (action: () => void) => {
-      action();
-      focusYenInput();
-      window.requestAnimationFrame(focusYenInput);
-    },
-    [focusYenInput],
-  );
-
-  const runPreservingInputFocus = useCallback(
-    (
-      event:
-        | ReactMouseEvent<HTMLButtonElement>
-        | ReactPointerEvent<HTMLButtonElement>
-        | ReactTouchEvent<HTMLButtonElement>,
-      action: () => void,
-    ) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const now = Date.now();
-      if (now < touchActionLockRef.current) {
-        return;
-      }
-      touchActionLockRef.current = now + 80;
-      ignoreClickUntilRef.current = Date.now() + 500;
-      runActionWithoutMovingFocus(action);
-    },
-    [runActionWithoutMovingFocus],
-  );
-
-  const runFallbackClick = useCallback(
-    (
-      event: ReactMouseEvent<HTMLButtonElement>,
-      action: () => void,
-    ) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (Date.now() < ignoreClickUntilRef.current) {
-        return;
-      }
-      runActionWithoutMovingFocus(action);
-    },
-    [runActionWithoutMovingFocus],
-  );
-
   return (
     <main className="relative min-h-dvh overflow-x-hidden bg-[var(--paper)] text-[var(--ink)]">
       <section className="mx-auto flex min-h-dvh w-full max-w-[540px] flex-col px-4 py-4 sm:px-6 sm:py-6">
-        <div
-          className={`grid flex-1 content-start gap-4 ${
-            keyboardMode ? "gap-3" : "sm:gap-5"
-          }`}
-        >
+        <div className="grid flex-1 content-start gap-3 sm:gap-4">
           <header className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
@@ -685,9 +706,7 @@ export function YenSenseApp() {
               </p>
               <output
                 aria-live="polite"
-                className={`mt-2 block break-words font-serif font-extrabold leading-none text-[var(--ink)] ${
-                  keyboardMode ? "text-5xl" : "text-[64px] sm:text-[92px]"
-                }`}
+                className="mt-2 block break-words font-serif text-[56px] font-extrabold leading-[0.9] text-[var(--ink)] sm:text-[76px]"
               >
                 {formatUsd(usdAmount)}
               </output>
@@ -704,55 +723,36 @@ export function YenSenseApp() {
 
           <section className="grid gap-3 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] p-3">
             <div className="flex items-center justify-between gap-2">
-              <label
-                htmlFor="yen-input"
-                className="zine-meta text-[10px] text-[var(--muted-ink)]"
-              >
+              <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
                 Yen amount
-              </label>
-              <button
-                type="button"
-                aria-label="Clear yen amount"
-                title="Clear yen amount"
-                tabIndex={-1}
-                onMouseDown={(event) =>
-                  runPreservingInputFocus(event, clearYen)
-                }
-                onPointerDownCapture={(event) =>
-                  runPreservingInputFocus(event, clearYen)
-                }
-                onTouchStart={(event) =>
-                  runPreservingInputFocus(event, clearYen)
-                }
-                onClick={(event) => runFallbackClick(event, clearYen)}
-                className={`grid size-8 place-items-center rounded-[8px] border border-[var(--line)] bg-[var(--field)] text-[var(--muted-ink)] transition-colors hover:border-[var(--accent-pop)] hover:text-[var(--accent-pop)] ${
-                  keyboardMode ? "" : "sm:hidden"
-                }`}
-              >
-                <CircleX className="size-4" />
-              </button>
+              </p>
+              <span className="zine-meta text-[9px] text-[var(--faint-ink)]">
+                keypad
+              </span>
             </div>
 
-            <div className="grid grid-cols-[46px_1fr] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
+            <div className="grid grid-cols-[46px_minmax(0,1fr)_44px] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
               <span className="grid place-items-center border-r border-[var(--line)] font-serif text-4xl font-bold text-[var(--accent-pop)]">
                 ¥
               </span>
-              <input
-                ref={inputRef}
-                id="yen-input"
-                value={yenInput}
-                onChange={(event) => {
-                  const yen = parseYenInput(event.target.value);
-                  setYenInput(formatYenInput(yen));
-                }}
-                inputMode="numeric"
-                autoComplete="off"
-                autoCorrect="off"
-                placeholder="0"
-                className={`min-w-0 bg-transparent px-3 font-mono font-bold leading-none text-[var(--ink)] outline-none placeholder:text-[var(--faint-ink)] ${
-                  keyboardMode ? "h-16 text-5xl" : "h-20 text-6xl sm:text-7xl"
+              <output
+                id="yen-display"
+                aria-live="polite"
+                className={`flex h-16 min-w-0 items-center overflow-hidden px-3 font-mono text-[clamp(2rem,9vw,46px)] font-bold leading-none ${
+                  yenInput ? "text-[var(--ink)]" : "text-[var(--faint-ink)]"
                 }`}
-              />
+              >
+                {yenInput || "0"}
+              </output>
+              <button
+                type="button"
+                aria-label="Backspace yen amount"
+                title="Backspace"
+                onClick={backspaceYen}
+                className="grid place-items-center border-l border-[var(--line)] text-[var(--muted-ink)] transition-colors hover:bg-[var(--sage)] hover:text-[var(--ink)]"
+              >
+                <Delete className="size-4" />
+              </button>
             </div>
 
             <div className="grid grid-cols-[1fr_auto] gap-2">
@@ -764,41 +764,13 @@ export function YenSenseApp() {
                   {quickSet.note}
                 </p>
               </div>
-              <div className="grid grid-cols-[34px_82px_34px] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
+              <div className="grid grid-cols-[32px_108px_32px] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
                 <button
                   type="button"
                   aria-label="Use smaller quick amounts"
                   title="Smaller amounts"
                   disabled={quickSetIndex === 0}
-                  tabIndex={-1}
-                  onMouseDown={(event) =>
-                    runPreservingInputFocus(event, () =>
-                      setQuickSetIndex((currentIndex) =>
-                        Math.max(0, currentIndex - 1),
-                      ),
-                    )
-                  }
-                  onPointerDownCapture={(event) =>
-                    runPreservingInputFocus(event, () =>
-                      setQuickSetIndex((currentIndex) =>
-                        Math.max(0, currentIndex - 1),
-                      ),
-                    )
-                  }
-                  onTouchStart={(event) =>
-                    runPreservingInputFocus(event, () =>
-                      setQuickSetIndex((currentIndex) =>
-                        Math.max(0, currentIndex - 1),
-                      ),
-                    )
-                  }
-                  onClick={(event) =>
-                    runFallbackClick(event, () =>
-                      setQuickSetIndex((currentIndex) =>
-                        Math.max(0, currentIndex - 1),
-                      ),
-                    )
-                  }
+                  onClick={() => stepQuickSet(-1)}
                   className="grid place-items-center border-r border-[var(--line)] text-[var(--muted-ink)] transition-colors hover:bg-[var(--sage)] hover:text-[var(--ink)] disabled:text-[var(--faint-ink)]"
                 >
                   <ChevronLeft className="size-4" />
@@ -811,35 +783,7 @@ export function YenSenseApp() {
                   aria-label="Use larger quick amounts"
                   title="Larger amounts"
                   disabled={quickSetIndex === QUICK_AMOUNT_SETS.length - 1}
-                  tabIndex={-1}
-                  onMouseDown={(event) =>
-                    runPreservingInputFocus(event, () =>
-                      setQuickSetIndex((currentIndex) =>
-                        Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
-                      ),
-                    )
-                  }
-                  onPointerDownCapture={(event) =>
-                    runPreservingInputFocus(event, () =>
-                      setQuickSetIndex((currentIndex) =>
-                        Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
-                      ),
-                    )
-                  }
-                  onTouchStart={(event) =>
-                    runPreservingInputFocus(event, () =>
-                      setQuickSetIndex((currentIndex) =>
-                        Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
-                      ),
-                    )
-                  }
-                  onClick={(event) =>
-                    runFallbackClick(event, () =>
-                      setQuickSetIndex((currentIndex) =>
-                        Math.min(QUICK_AMOUNT_SETS.length - 1, currentIndex + 1),
-                      ),
-                    )
-                  }
+                  onClick={() => stepQuickSet(1)}
                   className="grid place-items-center text-[var(--muted-ink)] transition-colors hover:bg-[var(--sage)] hover:text-[var(--ink)] disabled:text-[var(--faint-ink)]"
                 >
                   <ChevronRight className="size-4" />
@@ -848,37 +792,62 @@ export function YenSenseApp() {
             </div>
 
             <div className="grid grid-cols-4 gap-2">
-              {quickSet.amounts.map((amount) => (
-                <button
-                  type="button"
-                  key={amount}
-                  tabIndex={-1}
-                  onMouseDown={(event) =>
-                    runPreservingInputFocus(event, () => addYen(amount))
+              {KEYPAD_ROWS.map((row) =>
+                row.map((key) => {
+                  if (typeof key === "number") {
+                    return (
+                      <button
+                        type="button"
+                        key={`quick-${key}`}
+                        onClick={() => addYen(key)}
+                        className="zine-meta h-[52px] rounded-[8px] border border-[var(--line)] bg-[var(--field)] text-[10px] text-[var(--ink)] shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] transition-colors hover:border-[var(--accent-pop)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-pop)]"
+                      >
+                        +¥{formatYen(key)}
+                      </button>
+                    );
                   }
-                  onPointerDownCapture={(event) =>
-                    runPreservingInputFocus(event, () => addYen(amount))
+
+                  if (key === "backspace") {
+                    return (
+                      <button
+                        type="button"
+                        key={key}
+                        aria-label="Backspace yen amount"
+                        title="Backspace"
+                        onClick={backspaceYen}
+                        className="grid h-[52px] place-items-center rounded-[8px] border border-[var(--line)] bg-[var(--field)] text-[var(--muted-ink)] shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--sage)] hover:text-[var(--ink)]"
+                      >
+                        <Delete className="size-4" />
+                      </button>
+                    );
                   }
-                  onTouchStart={(event) =>
-                    runPreservingInputFocus(event, () => addYen(amount))
-                  }
-                  onClick={(event) =>
-                    runFallbackClick(event, () => addYen(amount))
-                  }
-                  className="zine-meta h-11 rounded-[8px] border border-[var(--line)] bg-[var(--field)] text-[10px] text-[var(--ink)] transition-colors hover:border-[var(--accent-pop)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-pop)]"
-                >
-                  +¥{formatYen(amount)}
-                </button>
-              ))}
+
+                  return (
+                    <button
+                      type="button"
+                      key={key}
+                      onClick={() => appendYenDigits(key)}
+                      className="h-[52px] rounded-[8px] border border-[var(--line)] bg-[var(--field)] font-mono text-2xl font-bold leading-none text-[var(--ink)] shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_1px_0_rgba(33,26,22,0.04)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--panel)]"
+                    >
+                      {key}
+                    </button>
+                  );
+                }),
+              )}
             </div>
+
+            <button
+              type="button"
+              onClick={clearYen}
+              className="flex h-11 items-center justify-center gap-2 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] text-sm font-bold text-[var(--ink)] transition-colors hover:border-[var(--accent-pop)] hover:text-[var(--accent-pop)]"
+            >
+              <CircleX className="size-4" />
+              Clear
+            </button>
           </section>
 
-          <footer
-            className={`grid grid-cols-[1fr_auto] items-stretch gap-3 ${
-              keyboardMode ? "hidden" : ""
-            }`}
-          >
-            <div className="rounded-[8px] border border-[var(--line)] bg-[var(--panel)] px-3 py-2">
+          <footer className="rounded-[8px] border border-[var(--line)] bg-[var(--panel)] px-3 py-2">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
                 {rate.status === "loading"
                   ? "Refreshing rate"
@@ -887,30 +856,12 @@ export function YenSenseApp() {
               <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
                 FETCHED: {formatMetaDate(rate.effectiveRate.fetchedAt)}
               </p>
-              {rate.errorMessage ? (
-                <p className="text-xs font-bold text-[var(--accent-pop)]">
-                  {rate.errorMessage}
-                </p>
-              ) : null}
             </div>
-            <button
-              type="button"
-              tabIndex={-1}
-              onMouseDown={(event) =>
-                runPreservingInputFocus(event, clearYen)
-              }
-              onPointerDownCapture={(event) =>
-                runPreservingInputFocus(event, clearYen)
-              }
-              onTouchStart={(event) =>
-                runPreservingInputFocus(event, clearYen)
-              }
-              onClick={(event) => runFallbackClick(event, clearYen)}
-              className="flex min-w-20 items-center justify-center gap-1 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] px-3 text-xs font-bold text-[var(--ink)] transition-colors hover:border-[var(--accent-pop)] hover:text-[var(--accent-pop)]"
-            >
-              <CircleX className="size-4" />
-              Clear
-            </button>
+            {rate.errorMessage ? (
+              <p className="mt-1 text-xs font-bold text-[var(--accent-pop)]">
+                {rate.errorMessage}
+              </p>
+            ) : null}
           </footer>
         </div>
       </section>
