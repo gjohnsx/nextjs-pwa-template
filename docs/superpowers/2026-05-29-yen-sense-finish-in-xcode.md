@@ -1,63 +1,76 @@
-# Yen Sense Pro — Finish-in-Xcode Checklist
+# Yen Sense Pro — Submission Checklist
 
-The code (branch `yen-sense-monetization`, commit `3e044d3`) **compiles clean** but the runtime
-pieces below need the Xcode GUI / App Store Connect / a device — an agent can't do them. Work
-top to bottom; the app builds at every stage.
+The branch `yen-sense-monetization` contains the native app, monetization layer, tests, StoreKit configuration, multi-currency endpoint, and widget target. This checklist reflects the current Xcode project state, not the earlier plan draft.
 
-## 1. (Optional) Unit-test target
-The plan's XCTest files live in `ios/YenSense/YenSenseTests/` but aren't wired to a target yet.
-To run them: Xcode → File → New → Target → **Unit Testing Bundle** `YenSenseTests`, attached to
-the YenSense app target. (They're already satisfied by the production code.) Never put an
-`import XCTest` file inside `Models/`/`Services/`/`Views/` — it breaks the app build.
+## Already Wired In The Repo
 
-## 2. StoreKit config + scheme
-- The file `ios/YenSense/YenSense/Yensense.storekit` exists (Pro $3.99 + 3 tips). Confirm its products.
-- Edit the **YenSense scheme → Run → Options → StoreKit Configuration = Yensense.storekit**.
-  Without this the simulator returns no products and the paywall/tip jar show only a spinner.
+- `YenSenseTests` target exists and is included in the `YenSense` scheme.
+- `Yensense.storekit` exists and is assigned in the scheme Run options.
+- `YenSenseWidget` target exists, is embedded in the app, and builds with the app.
+- `yensense://paywall` is registered in `YenSense/Info.plist`.
+- App and widget entitlement files include `group.com.gregjohns.yensense`.
+- `/api/rates` returns the JPY multi-currency map used by the native app.
 
-## 3. App Store Connect IAP + Small Business Program
-Create 4 IAPs with matching IDs/prices/display names/review screenshots:
-`com.gregjohns.yensense.pro` (Non-Consumable, $3.99); `…tip.coffee` $1.99, `…tip.bento` $4.99,
-`…tip.feast` $9.99 (Consumables). Then enroll in the **Small Business Program** (15% commission).
+## App Store Connect
 
-## 4. App Group capability
-Signing & Capabilities → **App Groups → `group.com.gregjohns.yensense`** on **both** the app
-target and (after step 5) the widget target. Until this exists, `UserDefaults(suiteName:)` falls
-back to `.standard`, so the app and widget won't share the rate snapshot (code still compiles/runs).
+Observed during the finishing pass:
 
-## 5. Create the Widget Extension target
-Sources are generated in `ios/YenSense/YenSenseWidget/` but unwired (the app build ignores them).
-- Xcode → File → New → Target → **Widget Extension**, name exactly `YenSenseWidget`,
-  **uncheck** "Include Configuration App Intent" (static widget); Activate the scheme.
-- Delete the two boilerplate files Xcode creates; add `YenSenseWidget.swift` and
-  `YenSenseWidgetBundle.swift` to the **YenSenseWidget target only** (not the app). Keep exactly
-  one `@main` (YenSenseWidgetBundle).
-- Note: the widget re-declares `WidgetRateSnapshot`, a reader, and the `Color.ys*` palette because
-  an extension can't see the app's internal types. Its `storageKey "yen-sense:widget-rate"` and
-  `appGroupID "group.com.gregjohns.yensense"` must match `Services/SharedRateStore.swift`
-  (or give `SharedRateStore.swift` + `Style.swift` widget target membership and delete the dupes).
+- App Store Connect shows Yen Sense iOS 1.0 as `Waiting for Review`.
+- App Privacy is published as `Data Not Collected` with privacy URL `https://yen-sense.vercel.app/privacy`.
+- App Information currently shows name `Yen Sense` and subtitle `Pocket yen converter for Japan`; the ASO metadata in `ios/AppStoreMetadata.md` has not been applied in App Store Connect yet.
+- The In-App Purchases list is empty. Apple shows the first IAP notice: the first in-app purchase must be created and selected on an app version before that version is submitted for review.
+- Business shows the Paid Apps Agreement as `New`, so paid apps and in-app purchases are not ready for sale until the agreement is accepted.
+- Digital Services Act compliance still needs setup for EU availability.
 
-## 6. Register the URL scheme (for the widget deep link)
-App target → Info → URL Types → URL Schemes = **`yensense`**. `RootView` already handles
-`yensense://paywall` via `.onOpenURL`.
+1. In App Store Connect, confirm the latest Paid Applications agreement is accepted.
+2. Apply for or confirm Apple Small Business Program enrollment before the first sale.
+3. Create these in-app purchases:
+   - `com.gregjohns.yensense.pro`, Non-Consumable, $3.99, display name `Yen Sense Pro`
+   - `com.gregjohns.yensense.tip.coffee`, Consumable, $1.99, display name `Coffee Tip`
+   - `com.gregjohns.yensense.tip.bento`, Consumable, $4.99, display name `Bento Tip`
+   - `com.gregjohns.yensense.tip.feast`, Consumable, $9.99, display name `Feast Tip`
+4. Enter the final title, subtitle, keywords, description, privacy posture, and screenshot captions from `ios/AppStoreMetadata.md`.
+5. Confirm the privacy label remains `Data Not Collected` and tracking remains `No`.
+6. Because iOS 1.0 is already in review, remove it from review or prepare a follow-up version before attaching the first IAP for review.
 
-## 7. Sandbox / device testing (the real verification)
-On a device with a Sandbox Apple ID, confirm: buy a tip → "ありがとう — thank you!"; buy Pro →
-`isPro` flips, sheet dismisses, full 13-amount Practice deck + History unlock; **Restore
-Purchases** works; refund re-locks Pro; the **Home currency picker** switches the converter to
-EUR/etc. The review prompt (after the 3rd Practice "Check") is StoreKit-rate-limited and won't show
-reliably in Simulator. Add the widget: non-Pro shows the "Unlock Yen Sense Pro" placeholder;
-after buying Pro and opening the app once, it shows the live rate.
+## Apple Developer / Xcode Signing
 
-## 8. Deploy + verify the endpoint
-Deploy to Vercel, then `curl https://yen-sense.vercel.app/api/rates` and confirm
-`{ base:"JPY", rates:{ USD,EUR,GBP,AUD,CAD,KRW,CNY,SGD,HKD,THB }, sourceDate, fetchedAt,
-provider:"frankfurter" }` with all 10 symbols.
+1. Confirm App Group `group.com.gregjohns.yensense` exists in the Apple Developer portal.
+2. Confirm the App Group capability is enabled for both bundle IDs:
+   - `com.gregjohns.yensense`
+   - `com.gregjohns.yensense.YenSenseWidget`
+3. Open the app target and widget target in Xcode Signing & Capabilities and verify the App Group checkbox is selected for both.
 
----
+## Simulator Checks
 
-### Minor git note
-Commit `23adc76` (baseline) carries the **final** `project.pbxproj`, which already registers the
-monetization files added in `3e044d3`. So checking out `23adc76` *alone* would show missing-file
-references in Xcode — harmless, since the branch HEAD (`3e044d3`) is complete and builds clean.
-This was the trade for keeping the huge pbxproj diff out of the monetization review commit.
+1. Build: `cd ios/YenSense && xcodebuild -scheme YenSense -destination 'platform=iOS Simulator,name=iPhone 17' build`
+2. Test: `cd ios/YenSense && xcodebuild test -scheme YenSense -destination 'platform=iOS Simulator,name=iPhone 17'`
+3. Run the app with the StoreKit config. Confirm products load, Pro purchase unlocks gates, tips can be purchased, and Restore Purchases calls StoreKit successfully.
+4. Add the widget in Simulator. Without Pro it shows the unlock placeholder; after Pro and opening the app once, it shows the live rate snapshot.
+
+## Device Sandbox Script
+
+1. Install on a physical device signed with the same App Group provisioning.
+2. Sign out of Media & Purchases and sign in with a Sandbox Apple ID when prompted.
+3. Buy Pro. Confirm:
+   - Paywall dismisses.
+   - Practice uses all 13 amounts.
+   - Practice History opens.
+   - Home currency picker unlocks EUR/GBP/AUD/CAD/KRW/CNY/SGD/HKD/THB.
+   - Widget shows the live rate after opening the app once.
+4. Fresh install or delete/reinstall, then Restore Purchases. Confirm Pro re-unlocks.
+5. Buy each tip and confirm the thank-you state appears.
+6. Use App Store Connect sandbox/refund tools to revoke/refund Pro. Confirm `Transaction.updates` eventually re-locks Pro.
+
+## Vercel / API
+
+1. Deploy the branch to Vercel.
+2. Verify:
+   - `curl https://yen-sense.vercel.app/api/rates/jpy-usd`
+   - `curl https://yen-sense.vercel.app/api/rates`
+3. `/api/rates` should return `{ base:"JPY", rates:{ USD,EUR,GBP,AUD,CAD,KRW,CNY,SGD,HKD,THB }, sourceDate, fetchedAt, provider:"frankfurter" }`.
+4. Confirm the Vercel Cron job hits `/api/cron/refresh-rate` daily after deployment.
+
+## Outreach Timing
+
+Schedule the autumn launch push for July-August 2026: App Store featuring nomination, Japan travel roundup outreach, r/JapanTravel value-first posts, and short Practice quiz videos.
