@@ -1,0 +1,754 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2B56A61F2CCB4000A8D6F011 /* YenSenseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F101 /* YenSenseApp.swift */; };
+		2B56A61F2CCB4000A8D6F012 /* CurrencyRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F102 /* CurrencyRate.swift */; };
+		2B56A61F2CCB4000A8D6F013 /* QuizAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F103 /* QuizAmount.swift */; };
+		2B56A61F2CCB4000A8D6F0B1 /* SupportedCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1B1 /* SupportedCurrency.swift */; };
+		2B56A61F2CCB4000A8D6F014 /* QuizProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F104 /* QuizProgress.swift */; };
+		2B56A61F2CCB4000A8D6F015 /* ExchangeRateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F105 /* ExchangeRateService.swift */; };
+		2B56A61F2CCB4000A8D6F016 /* RateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F106 /* RateStore.swift */; };
+		2B56A61F2CCB4000A8D6F017 /* QuizStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F107 /* QuizStore.swift */; };
+		2B56A61F2CCB4000A8D6F018 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F108 /* Style.swift */; };
+		2B56A61F2CCB4000A8D6F019 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F109 /* RootView.swift */; };
+		2B56A61F2CCB4000A8D6F01A /* ConverterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F10A /* ConverterView.swift */; };
+		2B56A61F2CCB4000A8D6F01B /* RateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F10B /* RateSettingsView.swift */; };
+		2B56A61F2CCB4000A8D6F01C /* PracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F10C /* PracticeView.swift */; };
+		2B56A61F2CCB4000A8D6F0A1 /* StoreProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1A1 /* StoreProducts.swift */; };
+		2B56A61F2CCB4000A8D6F0A2 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1A2 /* StoreManager.swift */; };
+		2B56A61F2CCB4000A8D6F0A6 /* SharedRateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1A6 /* SharedRateStore.swift */; };
+		2B56A61F2CCB4000A8D6F0A3 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1A3 /* PaywallView.swift */; };
+		2B56A61F2CCB4000A8D6F0A4 /* TipJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1A4 /* TipJarView.swift */; };
+		2B56A61F2CCB4000A8D6F0A5 /* PracticeHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1A5 /* PracticeHistoryView.swift */; };
+		2B56A61F2CCB4000A8D6F206 /* YenSenseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F205 /* YenSenseTests.swift */; };
+		2B56A61F2CCB4000A8D6F210 /* StoreProductsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F211 /* StoreProductsTests.swift */; };
+		2B56A61F2CCB4000A8D6F216 /* QuizAmountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F217 /* QuizAmountTests.swift */; };
+		2B56A61F2CCB4000A8D6F218 /* QuizStoreDeckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F219 /* QuizStoreDeckTests.swift */; };
+		2B56A61F2CCB4000A8D6F21A /* CurrencyModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F21B /* CurrencyModelTests.swift */; };
+		2B56A61F2CCB4000A8D6F212 /* Yensense.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F213 /* Yensense.storekit */; };
+		2B56A61F2CCB4000A8D6F310 /* YenSenseWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F305 /* YenSenseWidget.swift */; };
+		2B56A61F2CCB4000A8D6F311 /* YenSenseWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F306 /* YenSenseWidgetBundle.swift */; };
+		2B56A61F2CCB4000A8D6F312 /* YenSenseWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F300 /* YenSenseWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2B56A61F2CCB4000A8D6F01D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F10D /* Assets.xcassets */; };
+		2B56A61F2CCB4000A8D6F01E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F10E /* PrivacyInfo.xcprivacy */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2B56A61F2CCB4000A8D6F209 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2B56A61F2CCB4000A8D6F003 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B56A61F2CCB4000A8D6F001;
+			remoteInfo = YenSense;
+		};
+		2B56A61F2CCB4000A8D6F321 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2B56A61F2CCB4000A8D6F003 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B56A61F2CCB4000A8D6F301;
+			remoteInfo = YenSenseWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2B56A61F2CCB4000A8D6F320 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2B56A61F2CCB4000A8D6F312 /* YenSenseWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		2B56A61F2CCB4000A8D6F002 /* YenSense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YenSense.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B56A61F2CCB4000A8D6F101 /* YenSenseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YenSenseApp.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F102 /* CurrencyRate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRate.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F103 /* QuizAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAmount.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F1B1 /* SupportedCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportedCurrency.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F104 /* QuizProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizProgress.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F105 /* ExchangeRateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeRateService.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F106 /* RateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateStore.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F107 /* QuizStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizStore.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F108 /* Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Style.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F109 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F10A /* ConverterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConverterView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F10B /* RateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateSettingsView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F10C /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F1A1 /* StoreProducts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreProducts.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F1A2 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F1A6 /* SharedRateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedRateStore.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F1A3 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F1A4 /* TipJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F1A5 /* PracticeHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeHistoryView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F10D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F10E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F21D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F21C /* YenSense.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = YenSense.entitlements; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F213 /* Yensense.storekit */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Yensense.storekit; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F200 /* YenSenseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YenSenseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B56A61F2CCB4000A8D6F205 /* YenSenseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YenSenseTests.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F211 /* StoreProductsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreProductsTests.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F217 /* QuizAmountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAmountTests.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F219 /* QuizStoreDeckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizStoreDeckTests.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F21B /* CurrencyModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyModelTests.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F300 /* YenSenseWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = YenSenseWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B56A61F2CCB4000A8D6F305 /* YenSenseWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YenSenseWidget.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F306 /* YenSenseWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YenSenseWidgetBundle.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F30D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F30E /* YenSenseWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = YenSenseWidget.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2B56A61F2CCB4000A8D6F021 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B56A61F2CCB4000A8D6F203 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B56A61F2CCB4000A8D6F303 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2B56A61F2CCB4000A8D6F000 = {
+			isa = PBXGroup;
+			children = (
+				2B56A61F2CCB4000A8D6F030 /* YenSense */,
+				2B56A61F2CCB4000A8D6F207 /* YenSenseTests */,
+				2B56A61F2CCB4000A8D6F307 /* YenSenseWidget */,
+				2B56A61F2CCB4000A8D6F040 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2B56A61F2CCB4000A8D6F030 /* YenSense */ = {
+			isa = PBXGroup;
+			children = (
+				2B56A61F2CCB4000A8D6F101 /* YenSenseApp.swift */,
+				2B56A61F2CCB4000A8D6F031 /* Models */,
+				2B56A61F2CCB4000A8D6F032 /* Services */,
+				2B56A61F2CCB4000A8D6F033 /* Views */,
+				2B56A61F2CCB4000A8D6F10D /* Assets.xcassets */,
+				2B56A61F2CCB4000A8D6F10E /* PrivacyInfo.xcprivacy */,
+				2B56A61F2CCB4000A8D6F21D /* Info.plist */,
+				2B56A61F2CCB4000A8D6F21C /* YenSense.entitlements */,
+				2B56A61F2CCB4000A8D6F213 /* Yensense.storekit */,
+			);
+			path = YenSense;
+			sourceTree = "<group>";
+		};
+		2B56A61F2CCB4000A8D6F031 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2B56A61F2CCB4000A8D6F102 /* CurrencyRate.swift */,
+				2B56A61F2CCB4000A8D6F103 /* QuizAmount.swift */,
+				2B56A61F2CCB4000A8D6F1B1 /* SupportedCurrency.swift */,
+				2B56A61F2CCB4000A8D6F104 /* QuizProgress.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		2B56A61F2CCB4000A8D6F032 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				2B56A61F2CCB4000A8D6F105 /* ExchangeRateService.swift */,
+				2B56A61F2CCB4000A8D6F106 /* RateStore.swift */,
+				2B56A61F2CCB4000A8D6F107 /* QuizStore.swift */,
+				2B56A61F2CCB4000A8D6F1A1 /* StoreProducts.swift */,
+				2B56A61F2CCB4000A8D6F1A2 /* StoreManager.swift */,
+				2B56A61F2CCB4000A8D6F1A6 /* SharedRateStore.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		2B56A61F2CCB4000A8D6F033 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2B56A61F2CCB4000A8D6F108 /* Style.swift */,
+				2B56A61F2CCB4000A8D6F109 /* RootView.swift */,
+				2B56A61F2CCB4000A8D6F10A /* ConverterView.swift */,
+				2B56A61F2CCB4000A8D6F10B /* RateSettingsView.swift */,
+				2B56A61F2CCB4000A8D6F10C /* PracticeView.swift */,
+				2B56A61F2CCB4000A8D6F1A5 /* PracticeHistoryView.swift */,
+				2B56A61F2CCB4000A8D6F1A3 /* PaywallView.swift */,
+				2B56A61F2CCB4000A8D6F1A4 /* TipJarView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		2B56A61F2CCB4000A8D6F040 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2B56A61F2CCB4000A8D6F002 /* YenSense.app */,
+				2B56A61F2CCB4000A8D6F200 /* YenSenseTests.xctest */,
+				2B56A61F2CCB4000A8D6F300 /* YenSenseWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2B56A61F2CCB4000A8D6F207 /* YenSenseTests */ = {
+			isa = PBXGroup;
+			children = (
+				2B56A61F2CCB4000A8D6F205 /* YenSenseTests.swift */,
+				2B56A61F2CCB4000A8D6F211 /* StoreProductsTests.swift */,
+				2B56A61F2CCB4000A8D6F217 /* QuizAmountTests.swift */,
+				2B56A61F2CCB4000A8D6F219 /* QuizStoreDeckTests.swift */,
+				2B56A61F2CCB4000A8D6F21B /* CurrencyModelTests.swift */,
+			);
+			path = YenSenseTests;
+			sourceTree = "<group>";
+		};
+		2B56A61F2CCB4000A8D6F307 /* YenSenseWidget */ = {
+			isa = PBXGroup;
+			children = (
+				2B56A61F2CCB4000A8D6F305 /* YenSenseWidget.swift */,
+				2B56A61F2CCB4000A8D6F306 /* YenSenseWidgetBundle.swift */,
+				2B56A61F2CCB4000A8D6F30D /* Info.plist */,
+				2B56A61F2CCB4000A8D6F30E /* YenSenseWidget.entitlements */,
+			);
+			path = YenSenseWidget;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2B56A61F2CCB4000A8D6F001 /* YenSense */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B56A61F2CCB4000A8D6F070 /* Build configuration list for PBXNativeTarget "YenSense" */;
+			buildPhases = (
+				2B56A61F2CCB4000A8D6F020 /* Sources */,
+				2B56A61F2CCB4000A8D6F021 /* Frameworks */,
+				2B56A61F2CCB4000A8D6F022 /* Resources */,
+				2B56A61F2CCB4000A8D6F320 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2B56A61F2CCB4000A8D6F322 /* PBXTargetDependency */,
+			);
+			name = YenSense;
+			productName = YenSense;
+			productReference = 2B56A61F2CCB4000A8D6F002 /* YenSense.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2B56A61F2CCB4000A8D6F201 /* YenSenseTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B56A61F2CCB4000A8D6F20C /* Build configuration list for PBXNativeTarget "YenSenseTests" */;
+			buildPhases = (
+				2B56A61F2CCB4000A8D6F202 /* Sources */,
+				2B56A61F2CCB4000A8D6F203 /* Frameworks */,
+				2B56A61F2CCB4000A8D6F204 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2B56A61F2CCB4000A8D6F208 /* PBXTargetDependency */,
+			);
+			name = YenSenseTests;
+			productName = YenSenseTests;
+			productReference = 2B56A61F2CCB4000A8D6F200 /* YenSenseTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		2B56A61F2CCB4000A8D6F301 /* YenSenseWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B56A61F2CCB4000A8D6F30C /* Build configuration list for PBXNativeTarget "YenSenseWidget" */;
+			buildPhases = (
+				2B56A61F2CCB4000A8D6F302 /* Sources */,
+				2B56A61F2CCB4000A8D6F303 /* Frameworks */,
+				2B56A61F2CCB4000A8D6F304 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = YenSenseWidget;
+			productName = YenSenseWidget;
+			productReference = 2B56A61F2CCB4000A8D6F300 /* YenSenseWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2B56A61F2CCB4000A8D6F003 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					2B56A61F2CCB4000A8D6F001 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					2B56A61F2CCB4000A8D6F201 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 2B56A61F2CCB4000A8D6F001;
+					};
+					2B56A61F2CCB4000A8D6F301 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+				};
+			};
+			buildConfigurationList = 2B56A61F2CCB4000A8D6F060 /* Build configuration list for PBXProject "YenSense" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2B56A61F2CCB4000A8D6F000;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2B56A61F2CCB4000A8D6F040 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2B56A61F2CCB4000A8D6F001 /* YenSense */,
+				2B56A61F2CCB4000A8D6F201 /* YenSenseTests */,
+				2B56A61F2CCB4000A8D6F301 /* YenSenseWidget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2B56A61F2CCB4000A8D6F022 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B56A61F2CCB4000A8D6F01D /* Assets.xcassets in Resources */,
+				2B56A61F2CCB4000A8D6F01E /* PrivacyInfo.xcprivacy in Resources */,
+				2B56A61F2CCB4000A8D6F212 /* Yensense.storekit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B56A61F2CCB4000A8D6F204 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B56A61F2CCB4000A8D6F304 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2B56A61F2CCB4000A8D6F020 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B56A61F2CCB4000A8D6F011 /* YenSenseApp.swift in Sources */,
+				2B56A61F2CCB4000A8D6F012 /* CurrencyRate.swift in Sources */,
+				2B56A61F2CCB4000A8D6F013 /* QuizAmount.swift in Sources */,
+				2B56A61F2CCB4000A8D6F0B1 /* SupportedCurrency.swift in Sources */,
+				2B56A61F2CCB4000A8D6F014 /* QuizProgress.swift in Sources */,
+				2B56A61F2CCB4000A8D6F015 /* ExchangeRateService.swift in Sources */,
+				2B56A61F2CCB4000A8D6F016 /* RateStore.swift in Sources */,
+				2B56A61F2CCB4000A8D6F017 /* QuizStore.swift in Sources */,
+				2B56A61F2CCB4000A8D6F018 /* Style.swift in Sources */,
+				2B56A61F2CCB4000A8D6F019 /* RootView.swift in Sources */,
+				2B56A61F2CCB4000A8D6F01A /* ConverterView.swift in Sources */,
+				2B56A61F2CCB4000A8D6F01B /* RateSettingsView.swift in Sources */,
+				2B56A61F2CCB4000A8D6F01C /* PracticeView.swift in Sources */,
+				2B56A61F2CCB4000A8D6F0A1 /* StoreProducts.swift in Sources */,
+				2B56A61F2CCB4000A8D6F0A2 /* StoreManager.swift in Sources */,
+				2B56A61F2CCB4000A8D6F0A6 /* SharedRateStore.swift in Sources */,
+				2B56A61F2CCB4000A8D6F0A3 /* PaywallView.swift in Sources */,
+				2B56A61F2CCB4000A8D6F0A4 /* TipJarView.swift in Sources */,
+				2B56A61F2CCB4000A8D6F0A5 /* PracticeHistoryView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B56A61F2CCB4000A8D6F202 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B56A61F2CCB4000A8D6F206 /* YenSenseTests.swift in Sources */,
+				2B56A61F2CCB4000A8D6F210 /* StoreProductsTests.swift in Sources */,
+				2B56A61F2CCB4000A8D6F216 /* QuizAmountTests.swift in Sources */,
+				2B56A61F2CCB4000A8D6F218 /* QuizStoreDeckTests.swift in Sources */,
+				2B56A61F2CCB4000A8D6F21A /* CurrencyModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B56A61F2CCB4000A8D6F302 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B56A61F2CCB4000A8D6F310 /* YenSenseWidget.swift in Sources */,
+				2B56A61F2CCB4000A8D6F311 /* YenSenseWidgetBundle.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2B56A61F2CCB4000A8D6F208 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B56A61F2CCB4000A8D6F001 /* YenSense */;
+			targetProxy = 2B56A61F2CCB4000A8D6F209 /* PBXContainerItemProxy */;
+		};
+		2B56A61F2CCB4000A8D6F322 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B56A61F2CCB4000A8D6F301 /* YenSenseWidget */;
+			targetProxy = 2B56A61F2CCB4000A8D6F321 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2B56A61F2CCB4000A8D6F061 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		2B56A61F2CCB4000A8D6F062 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2B56A61F2CCB4000A8D6F071 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = YenSense/YenSense.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 5W4W9HGPFD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = YenSense/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gregjohns.yensense;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		2B56A61F2CCB4000A8D6F072 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = YenSense/YenSense.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 5W4W9HGPFD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = YenSense/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gregjohns.yensense;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		2B56A61F2CCB4000A8D6F20A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5W4W9HGPFD;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gregjohns.yensenseTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YenSense.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/YenSense";
+			};
+			name = Debug;
+		};
+		2B56A61F2CCB4000A8D6F20B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5W4W9HGPFD;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gregjohns.yensenseTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YenSense.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/YenSense";
+			};
+			name = Release;
+		};
+		2B56A61F2CCB4000A8D6F30A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = YenSenseWidget/YenSenseWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 5W4W9HGPFD;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = YenSenseWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gregjohns.yensense.YenSenseWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		2B56A61F2CCB4000A8D6F30B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = YenSenseWidget/YenSenseWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 5W4W9HGPFD;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = YenSenseWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gregjohns.yensense.YenSenseWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2B56A61F2CCB4000A8D6F060 /* Build configuration list for PBXProject "YenSense" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B56A61F2CCB4000A8D6F061 /* Debug */,
+				2B56A61F2CCB4000A8D6F062 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B56A61F2CCB4000A8D6F070 /* Build configuration list for PBXNativeTarget "YenSense" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B56A61F2CCB4000A8D6F071 /* Debug */,
+				2B56A61F2CCB4000A8D6F072 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B56A61F2CCB4000A8D6F20C /* Build configuration list for PBXNativeTarget "YenSenseTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B56A61F2CCB4000A8D6F20A /* Debug */,
+				2B56A61F2CCB4000A8D6F20B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B56A61F2CCB4000A8D6F30C /* Build configuration list for PBXNativeTarget "YenSenseWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B56A61F2CCB4000A8D6F30A /* Debug */,
+				2B56A61F2CCB4000A8D6F30B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2B56A61F2CCB4000A8D6F003 /* Project object */;
+}
