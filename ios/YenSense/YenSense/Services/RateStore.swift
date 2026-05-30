@@ -20,11 +20,15 @@ final class RateStore: ObservableObject {
 
         let cachedRate = Self.readStoredRate(from: defaults, key: storageKey)
         self.storedRate = cachedRate
-        self.status = cachedRate.liveYenPerUSD == nil ? .fallback : .cached
+        self.status = cachedRate.unitsPerYen.isEmpty ? .fallback : .cached
     }
 
     var effectiveRate: EffectiveRate {
         CurrencyMath.effectiveRate(from: storedRate)
+    }
+
+    private var hasLiveRate: Bool {
+        !storedRate.unitsPerYen.isEmpty
     }
 
     func refreshRate(silent: Bool = false) async {
@@ -34,36 +38,32 @@ final class RateStore: ObservableObject {
         }
 
         do {
-            let response = try await service.fetchRateSnapshot()
-            guard let usdPerYen = response.usdPerYen,
-                  let yenPerUSD = response.yenPerUsd,
-                  usdPerYen > 0,
-                  yenPerUSD > 0 else {
+            let response = try await service.fetchRates()
+            guard let rates = response.rates,
+                  rates.values.contains(where: { $0 > 0 }) else {
                 throw ExchangeRateServiceError.missingRate
             }
 
-            let nextRate = StoredRate(
-                liveUSDPerYen: usdPerYen,
-                liveYenPerUSD: yenPerUSD,
-                sourceDate: response.sourceDate,
-                fetchedAt: response.fetchedAt.map { Date(timeIntervalSince1970: $0 / 1000) } ?? Date(),
-                manualYenPerUSD: storedRate.manualYenPerUSD
-            )
+            var nextRate = storedRate
+            nextRate.unitsPerYen = rates
+            nextRate.sourceDate = response.sourceDate
+            nextRate.fetchedAt = response.fetchedAt.map { Date(timeIntervalSince1970: $0 / 1000) } ?? Date()
 
             storedRate = nextRate
             writeStoredRate(nextRate)
+            writeWidgetSnapshot()
             status = .live
         } catch {
             let cachedRate = Self.readStoredRate(from: defaults, key: storageKey)
             storedRate = cachedRate
 
             if silent {
-                status = cachedRate.liveYenPerUSD == nil ? .fallback : .cached
+                status = cachedRate.unitsPerYen.isEmpty ? .fallback : .cached
                 return
             }
 
-            status = cachedRate.liveYenPerUSD == nil ? .error : .cached
-            errorMessage = cachedRate.liveYenPerUSD == nil
+            status = cachedRate.unitsPerYen.isEmpty ? .error : .cached
+            errorMessage = cachedRate.unitsPerYen.isEmpty
                 ? "Could not refresh. Using the offline estimate."
                 : "Could not refresh. Using your cached rate."
         }
@@ -78,24 +78,33 @@ final class RateStore: ObservableObject {
         await refreshRate(silent: true)
     }
 
-    func setManualRate(_ yenPerUSD: Double?) {
+    func setSelectedQuote(_ code: String) {
         var nextRate = storedRate
-        nextRate.manualYenPerUSD = (yenPerUSD ?? 0) > 0 ? yenPerUSD : nil
+        nextRate.selectedQuote = SupportedCurrency.find(code).code
+        nextRate.manualYenPerUnit = nil
         storedRate = nextRate
         writeStoredRate(nextRate)
+        writeWidgetSnapshot()
+    }
+
+    func setManualRate(_ yenPerUnit: Double?) {
+        var nextRate = storedRate
+        nextRate.manualYenPerUnit = (yenPerUnit ?? 0) > 0 ? yenPerUnit : nil
+        storedRate = nextRate
+        writeStoredRate(nextRate)
+        writeWidgetSnapshot()
     }
 
     func resetToFallback() {
-        let nextRate = StoredRate(
-            liveUSDPerYen: nil,
-            liveYenPerUSD: nil,
-            sourceDate: nil,
-            fetchedAt: nil,
-            manualYenPerUSD: CurrencyMath.fallbackYenPerUSD
-        )
+        var nextRate = storedRate
+        nextRate.unitsPerYen = [:]
+        nextRate.manualYenPerUnit = nil
+        nextRate.sourceDate = nil
+        nextRate.fetchedAt = nil
 
         storedRate = nextRate
         writeStoredRate(nextRate)
+        writeWidgetSnapshot()
         status = .fallback
     }
 
@@ -116,8 +125,25 @@ final class RateStore: ObservableObject {
         defaults.set(data, forKey: storageKey)
     }
 
+    /// Pushes the current effective rate into the App Group so the widget can
+    /// render it without its own network call. Preserves the `isPro` flag that
+    /// `StoreManager` writes separately.
+    private func writeWidgetSnapshot() {
+        let rate = effectiveRate
+        let isPro = SharedRateStore.read()?.isPro ?? false
+        SharedRateStore.write(
+            WidgetRateSnapshot(
+                quoteCode: rate.quote.code,
+                quoteSymbol: rate.quote.symbol,
+                yenPerUnit: rate.yenPerUnit,
+                fetchedAt: rate.fetchedAt,
+                isPro: isPro
+            )
+        )
+    }
+
     private var shouldRefreshInBackground: Bool {
-        guard storedRate.liveYenPerUSD != nil,
+        guard hasLiveRate,
               let fetchedAt = storedRate.fetchedAt else {
             return true
         }

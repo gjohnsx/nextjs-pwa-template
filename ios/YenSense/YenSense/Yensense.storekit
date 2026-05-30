@@ -1,0 +1,73 @@
+{
+  "type": "local",
+  "version": 3,
+  "products": [
+    {
+      "displayPrice": "3.99",
+      "familyShareable": false,
+      "internalID": "1001",
+      "localizations": [
+        {
+          "description": "Unlock the full Practice deck, progress history, multi-currency, and widgets.",
+          "displayName": "Yen Sense Pro",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.gregjohns.yensense.pro",
+      "referenceName": "Yen Sense Pro",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "1002",
+      "localizations": [
+        {
+          "description": "Buy the maker a coffee.",
+          "displayName": "Coffee Tip",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.gregjohns.yensense.tip.coffee",
+      "referenceName": "Coffee Tip",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "4.99",
+      "familyShareable": false,
+      "internalID": "1003",
+      "localizations": [
+        {
+          "description": "Buy the maker a bento.",
+          "displayName": "Bento Tip",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.gregjohns.yensense.tip.bento",
+      "referenceName": "Bento Tip",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "9.99",
+      "familyShareable": false,
+      "internalID": "1004",
+      "localizations": [
+        {
+          "description": "Buy the maker a feast.",
+          "displayName": "Feast Tip",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.gregjohns.yensense.tip.feast",
+      "referenceName": "Feast Tip",
+      "type": "Consumable"
+    }
+  ],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "en_US",
+    "_storefront": "USA"
+  },
+  "subscriptionGroups": [],
+  "nonRenewingSubscriptions": []
+}

@@ -7,16 +7,17 @@ final class QuizStore: ObservableObject {
 
     @Published private(set) var progress: QuizProgress
     @Published private(set) var currentAmount: QuizAmount
+    @Published private(set) var isPro = false
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         let storedProgress = Self.readProgress(from: defaults, key: storageKey)
         self.progress = storedProgress
-        self.currentAmount = Self.selectAmount(from: storedProgress)
+        self.currentAmount = Self.selectAmount(from: storedProgress, deck: QuizAmount.deck(isPro: false))
     }
 
     var summary: QuizSummary {
-        let stats = QuizAmount.all.map { progress[$0.id] ?? .empty }
+        let stats = QuizAmount.deck(isPro: isPro).map { progress[$0.id] ?? .empty }
         let now = Date()
 
         return QuizSummary(
@@ -25,6 +26,19 @@ final class QuizStore: ObservableObject {
             mastered: stats.filter { $0.boxLevel >= 4 }.count,
             bestStreak: stats.map(\.streak).max() ?? 0
         )
+    }
+
+    func setPro(_ value: Bool) {
+        guard value != isPro else {
+            return
+        }
+
+        isPro = value
+        currentAmount = Self.selectAmount(from: progress, deck: QuizAmount.deck(isPro: isPro))
+    }
+
+    func stats(for id: String) -> QuizStats {
+        progress[id] ?? .empty
     }
 
     func recordAnswer(guessUSD: Double, exactUSD: Double) -> QuizResult {
@@ -56,13 +70,13 @@ final class QuizStore: ObservableObject {
     }
 
     func nextQuestion(excluding id: String? = nil) {
-        currentAmount = Self.selectAmount(from: progress, excluding: id)
+        currentAmount = Self.selectAmount(from: progress, deck: QuizAmount.deck(isPro: isPro), excluding: id)
     }
 
     func reset() {
         progress = [:]
         writeProgress(progress)
-        currentAmount = Self.selectAmount(from: progress)
+        currentAmount = Self.selectAmount(from: progress, deck: QuizAmount.deck(isPro: isPro))
     }
 
     private static func readProgress(from defaults: UserDefaults, key: String) -> QuizProgress {
@@ -74,15 +88,19 @@ final class QuizStore: ObservableObject {
         return progress
     }
 
-    private static func selectAmount(from progress: QuizProgress, excluding excludedID: String? = nil) -> QuizAmount {
+    private static func selectAmount(
+        from progress: QuizProgress,
+        deck: [QuizAmount],
+        excluding excludedID: String? = nil
+    ) -> QuizAmount {
         let now = Date()
-        let rows = QuizAmount.all
+        let rows = deck
             .filter { $0.id != excludedID }
             .map { amount in
                 (amount: amount, stats: progress[amount.id] ?? .empty)
             }
         let candidates = rows.isEmpty
-            ? QuizAmount.all.map { amount in (amount: amount, stats: progress[amount.id] ?? .empty) }
+            ? deck.map { amount in (amount: amount, stats: progress[amount.id] ?? .empty) }
             : rows
         let due = candidates.filter { $0.stats.nextDueAt <= now }
         let pool = due.isEmpty ? candidates : due

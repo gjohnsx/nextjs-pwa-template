@@ -2,18 +2,29 @@ import SwiftUI
 
 struct RateSettingsView: View {
     @ObservedObject var rateStore: RateStore
-    @State private var rateInput: String
+    @Binding var sheetDestination: SheetDestination?
+    @EnvironmentObject private var store: StoreManager
 
-    init(rateStore: RateStore) {
+    @State private var rateInput: String
+    @State private var showCurrencyPicker = false
+
+    init(rateStore: RateStore, sheetDestination: Binding<SheetDestination?>) {
         self.rateStore = rateStore
-        _rateInput = State(initialValue: CurrencyText.rate(rateStore.effectiveRate.yenPerUSD))
+        _sheetDestination = sheetDestination
+        _rateInput = State(initialValue: CurrencyText.rate(rateStore.effectiveRate.yenPerUnit))
+    }
+
+    private var quote: SupportedCurrency {
+        rateStore.effectiveRate.quote
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                homeCurrencyRow
+
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Yen per dollar")
+                    Text("Yen per \(quote.name.lowercased())")
                         .font(.caption.weight(.bold))
                         .textCase(.uppercase)
                         .foregroundStyle(Color.ysMutedInk)
@@ -47,7 +58,7 @@ struct RateSettingsView: View {
 
                     Button {
                         rateStore.setManualRate(nil)
-                        rateInput = CurrencyText.rate(rateStore.effectiveRate.yenPerUSD)
+                        rateInput = CurrencyText.rate(rateStore.effectiveRate.yenPerUnit)
                     } label: {
                         Label("Live", systemImage: "arrow.counterclockwise")
                     }
@@ -64,11 +75,9 @@ struct RateSettingsView: View {
                     .textCase(.uppercase)
                     .foregroundStyle(Color.ysMutedInk)
 
-                    Text(rateStore.storedRate.liveYenPerUSD.map {
-                        "Last fetched: ¥\(CurrencyText.rate($0)) = $1."
-                    } ?? "Offline estimate: ¥\(CurrencyText.rate(CurrencyMath.fallbackYenPerUSD)) = $1.")
-                    .font(.callout)
-                    .foregroundStyle(Color.ysMutedInk)
+                    Text(sourceDetail)
+                        .font(.callout)
+                        .foregroundStyle(Color.ysMutedInk)
 
                     if let errorMessage = rateStore.errorMessage {
                         Text(errorMessage)
@@ -82,7 +91,7 @@ struct RateSettingsView: View {
                     Button {
                         Task {
                             await rateStore.refreshRate()
-                            rateInput = CurrencyText.rate(rateStore.effectiveRate.yenPerUSD)
+                            rateInput = CurrencyText.rate(rateStore.effectiveRate.yenPerUnit)
                         }
                     } label: {
                         Label("Refresh", systemImage: "arrow.clockwise")
@@ -91,25 +100,78 @@ struct RateSettingsView: View {
 
                     Button {
                         rateStore.resetToFallback()
-                        rateInput = CurrencyText.rate(CurrencyMath.fallbackYenPerUSD)
+                        rateInput = CurrencyText.rate(rateStore.effectiveRate.yenPerUnit)
                     } label: {
-                        Text("¥150")
+                        Text("Reset")
                     }
                     .buttonStyle(YenButtonStyle())
                 }
+
+                Button {
+                    sheetDestination = .tips
+                } label: {
+                    Label("Support the maker", systemImage: "heart")
+                }
+                .buttonStyle(YenButtonStyle())
             }
             .padding(18)
         }
         .background(Color.ysPaper)
         .navigationTitle("Rate")
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: rateStore.effectiveRate.yenPerUSD) { _, nextRate in
+        .confirmationDialog("Home currency", isPresented: $showCurrencyPicker, titleVisibility: .visible) {
+            ForEach(SupportedCurrency.all) { currency in
+                Button("\(currency.name) (\(currency.symbol))") {
+                    rateStore.setSelectedQuote(currency.code)
+                    rateInput = CurrencyText.rate(rateStore.effectiveRate.yenPerUnit)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .onChange(of: rateStore.effectiveRate.yenPerUnit) { _, nextRate in
             rateInput = CurrencyText.rate(nextRate)
         }
     }
 
+    private var homeCurrencyRow: some View {
+        Button {
+            if store.isPro {
+                showCurrencyPicker = true
+            } else {
+                sheetDestination = .paywall
+            }
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "globe")
+                    .foregroundStyle(Color.ysAccent)
+                    .frame(width: 24)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Home currency")
+                        .font(.headline)
+                        .foregroundStyle(Color.ysInk)
+                    Text("\(quote.name) (\(quote.code))")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.ysMutedInk)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: store.isPro ? "chevron.right" : "lock")
+                    .foregroundStyle(Color.ysMutedInk)
+            }
+            .panelCard()
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var sourceDetail: String {
+        if rateStore.effectiveRate.isFallback {
+            return "Offline estimate: ¥\(CurrencyText.rate(rateStore.effectiveRate.yenPerUnit)) = \(quote.symbol)1."
+        }
+
+        return "Last rate: ¥\(CurrencyText.rate(rateStore.effectiveRate.yenPerUnit)) = \(quote.symbol)1."
+    }
+
     private func applyManualRate() {
-        let nextRate = CurrencyMath.parseUSDInput(rateInput)
+        let nextRate = CurrencyMath.parseDecimalInput(rateInput)
         guard nextRate > 0 else {
             return
         }
@@ -121,6 +183,7 @@ struct RateSettingsView: View {
 
 #Preview {
     NavigationStack {
-        RateSettingsView(rateStore: RateStore())
+        RateSettingsView(rateStore: RateStore(), sheetDestination: .constant(nil))
+            .environmentObject(StoreManager())
     }
 }

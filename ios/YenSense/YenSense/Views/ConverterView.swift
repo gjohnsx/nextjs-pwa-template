@@ -28,8 +28,12 @@ struct ConverterView: View {
         min(storedYenTotal + currentYenEntry, CurrencyMath.maxYenAmount)
     }
 
-    private var usdAmount: Double {
-        CurrencyMath.convertYenToUSD(yenAmount, yenPerUSD: rateStore.effectiveRate.yenPerUSD)
+    private var quote: SupportedCurrency {
+        rateStore.effectiveRate.quote
+    }
+
+    private var convertedAmount: Double {
+        CurrencyMath.convertYen(yenAmount, yenPerUnit: rateStore.effectiveRate.yenPerUnit)
     }
 
     private var displayYenInput: String {
@@ -102,18 +106,18 @@ struct ConverterView: View {
 
                 Spacer()
 
-                Text("JPY to USD")
+                Text("JPY to \(quote.code)")
                     .font(.caption.weight(.bold))
                     .textCase(.uppercase)
                     .foregroundStyle(Color.ysMutedInk)
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Dollar result")
+                Text("\(quote.name) result")
                     .font(.caption.weight(.bold))
                     .textCase(.uppercase)
                     .foregroundStyle(Color.ysMutedInk)
-                Text(CurrencyText.usd(usdAmount))
+                Text(CurrencyText.amount(convertedAmount, currency: quote))
                     .font(.system(size: 64, weight: .heavy, design: .serif))
                     .minimumScaleFactor(0.45)
                     .lineLimit(1)
@@ -121,10 +125,10 @@ struct ConverterView: View {
             }
 
             HStack {
-                Text("¥\(CurrencyText.rate(rateStore.effectiveRate.yenPerUSD))")
+                Text("¥\(CurrencyText.rate(rateStore.effectiveRate.yenPerUnit))")
                     .font(.system(.title3, design: .monospaced).weight(.bold))
                 Spacer()
-                Text("per $1")
+                Text("per \(quote.symbol)1")
                     .font(.caption.weight(.bold))
                     .textCase(.uppercase)
                     .foregroundStyle(Color.ysMutedInk)

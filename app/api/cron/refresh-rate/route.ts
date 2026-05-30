@@ -8,16 +8,29 @@ export async function GET(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const rateURL = new URL("/api/rates/jpy-usd", request.url);
-  const response = await fetch(rateURL, { cache: "no-store" });
+  const jpyUsdURL = new URL("/api/rates/jpy-usd", request.url);
+  const ratesURL = new URL("/api/rates", request.url);
 
-  if (!response.ok) {
+  const [jpyUsdResponse, ratesResponse] = await Promise.all([
+    fetch(jpyUsdURL, { cache: "no-store" }),
+    fetch(ratesURL, { cache: "no-store" }),
+  ]);
+
+  if (!jpyUsdResponse.ok || !ratesResponse.ok) {
     return Response.json(
-      { ok: false, status: response.status },
+      {
+        ok: false,
+        jpyUsdStatus: jpyUsdResponse.status,
+        ratesStatus: ratesResponse.status,
+      },
       { status: 502 },
     );
   }
 
-  const rate = await response.json();
-  return Response.json({ ok: true, rate });
+  const [rate, rates] = await Promise.all([
+    jpyUsdResponse.json(),
+    ratesResponse.json(),
+  ]);
+  return Response.json({ ok: true, rate, rates });
 }
+

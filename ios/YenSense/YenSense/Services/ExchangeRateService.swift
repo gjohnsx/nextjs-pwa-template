@@ -1,9 +1,9 @@
 import Foundation
 
-struct RateSnapshotResponse: Decodable {
+struct MultiRateResponse: Decodable {
+    var base: String?
+    var rates: [String: Double]?
     var sourceDate: String?
-    var usdPerYen: Double?
-    var yenPerUsd: Double?
     var fetchedAt: Double?
 }
 
@@ -13,9 +13,9 @@ enum ExchangeRateServiceError: Error {
 }
 
 struct ExchangeRateService {
-    var endpointURL = URL(string: "https://yen-sense.vercel.app/api/rates/jpy-usd")!
+    var endpointURL = URL(string: "https://yen-sense.vercel.app/api/rates")!
 
-    func fetchRateSnapshot() async throws -> RateSnapshotResponse {
+    func fetchRates() async throws -> MultiRateResponse {
         let (data, response) = try await URLSession.shared.data(from: endpointURL)
 
         guard let httpResponse = response as? HTTPURLResponse,
@@ -23,12 +23,11 @@ struct ExchangeRateService {
             throw ExchangeRateServiceError.invalidResponse
         }
 
-        let decoded = try JSONDecoder().decode(RateSnapshotResponse.self, from: data)
+        let decoded = try JSONDecoder().decode(MultiRateResponse.self, from: data)
 
-        guard let usdPerYen = decoded.usdPerYen,
-              let yenPerUsd = decoded.yenPerUsd,
-              usdPerYen > 0,
-              yenPerUsd > 0 else {
+        guard let rates = decoded.rates,
+              !rates.isEmpty,
+              rates.values.contains(where: { $0 > 0 }) else {
             throw ExchangeRateServiceError.missingRate
         }
 
