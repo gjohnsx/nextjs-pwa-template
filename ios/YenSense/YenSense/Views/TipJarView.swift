@@ -54,6 +54,7 @@ struct TipJarView: View {
                                 Spacer()
                                 Text(tip.displayPrice)
                             }
+                            .padding(.horizontal, 16)
                         }
                         .buttonStyle(YenButtonStyle())
                     }
