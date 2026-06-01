@@ -106,19 +106,23 @@ struct RateSettingsView: View {
                     }
                     .buttonStyle(YenButtonStyle())
                 }
-
-                Button {
-                    sheetDestination = .tips
-                } label: {
-                    Label("Support the maker", systemImage: "heart")
-                }
-                .buttonStyle(YenButtonStyle())
             }
             .padding(18)
         }
         .background(Color.ysPaper)
         .navigationTitle("Rate")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    sheetDestination = .tips
+                } label: {
+                    Image(systemName: "heart")
+                }
+                .tint(Color.ysAccent)
+                .accessibilityLabel("Support the maker")
+            }
+        }
         .confirmationDialog("Home currency", isPresented: $showCurrencyPicker, titleVisibility: .visible) {
             ForEach(SupportedCurrency.all) { currency in
                 Button("\(currency.name) (\(currency.symbol))") {

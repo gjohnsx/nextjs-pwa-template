@@ -15,7 +15,7 @@ struct PaywallView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 14) {
                 Text("Yen Sense Pro")
                     .font(.system(size: 34, weight: .heavy, design: .serif))
                     .foregroundStyle(Color.ysInk)
@@ -41,32 +41,8 @@ struct PaywallView: View {
                     .panelCard()
                 }
 
-                if let pro = store.proProduct {
-                    Button {
-                        Task {
-                            if await store.purchase(pro), store.isPro { dismiss() }
-                        }
-                    } label: {
-                        Label("Unlock for \(pro.displayPrice)", systemImage: "checkmark")
-                    }
-                    .buttonStyle(YenButtonStyle(prominent: true))
-                } else {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                }
-
-                Button("Restore Purchases") {
-                    Task {
-                        await store.restore()
-                        if store.isPro { dismiss() }
-                    }
-                }
-                .font(.subheadline)
-                .foregroundStyle(Color.ysMutedInk)
-                .frame(maxWidth: .infinity)
-
                 VStack(spacing: 6) {
-                    Text("No ads. No tracking. No subscription.")
+                    Text("No ads. No tracking.")
                         .font(.caption.weight(.bold))
                         .textCase(.uppercase)
                         .foregroundStyle(Color.ysMutedInk)
@@ -82,6 +58,65 @@ struct PaywallView: View {
             .padding(18)
         }
         .background(Color.ysPaper)
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 12) {
+                if let pro = store.proProduct {
+                    Button {
+                        Task {
+                            if await store.purchase(pro), store.isPro { dismiss() }
+                        }
+                    } label: {
+                        Label("Unlock for \(pro.displayPrice)", systemImage: "checkmark")
+                    }
+                    .buttonStyle(YenButtonStyle(prominent: true))
+                } else if store.isLoading {
+                    Button {
+                    } label: {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                                .tint(Color.ysPanel)
+                            Text("Unlock Pro")
+                        }
+                    }
+                    .buttonStyle(YenButtonStyle(prominent: true))
+                    .disabled(true)
+                } else {
+                    Button {
+                        Task { await store.refresh() }
+                    } label: {
+                        Label("Try Again", systemImage: "arrow.clockwise")
+                    }
+                    .buttonStyle(YenButtonStyle(prominent: true))
+                }
+
+                Button("Restore Purchases") {
+                    Task {
+                        await store.restore()
+                        if store.isPro { dismiss() }
+                    }
+                }
+                .font(.subheadline)
+                .foregroundStyle(Color.ysMutedInk)
+
+                Text("One purchase. No subscription.")
+                    .font(.caption.weight(.bold))
+                    .textCase(.uppercase)
+                    .foregroundStyle(Color.ysMutedInk)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 18)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+            .background(
+                Color.ysPaper
+                    .overlay(alignment: .top) {
+                        Rectangle()
+                            .fill(Color.ysLine)
+                            .frame(height: 1)
+                    }
+                    .ignoresSafeArea(edges: .bottom)
+            )
+        }
         .navigationTitle("Yen Sense Pro")
         .navigationBarTitleDisplayMode(.inline)
         .alert("Store", isPresented: .constant(store.purchaseError != nil)) {

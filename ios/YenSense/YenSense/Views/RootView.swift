@@ -9,6 +9,15 @@ enum SheetDestination: String, Identifiable {
     var id: String {
         rawValue
     }
+
+    var detents: Set<PresentationDetent> {
+        switch self {
+        case .paywall:
+            return [.large]
+        case .practice, .rate, .tips:
+            return [.medium, .large]
+        }
+    }
 }
 
 struct RootView: View {
@@ -45,7 +54,8 @@ struct RootView: View {
                             .environmentObject(store)
                     }
                 }
-                .presentationDetents([.medium, .large])
+                .presentationDetents(destination.detents)
+                .presentationDragIndicator(.visible)
             }
             .task {
                 await rateStore.refreshIfStale()
@@ -63,8 +73,16 @@ struct RootView: View {
                 }
             }
             .onOpenURL { url in
-                if url.scheme == "yensense", url.host == "paywall" {
+                guard url.scheme == "yensense" else { return }
+                switch url.host {
+                case "paywall":
                     sheetDestination = .paywall
+                case "rate":
+                    sheetDestination = .rate
+                case "tips":
+                    sheetDestination = .tips
+                default:
+                    break
                 }
             }
     }
