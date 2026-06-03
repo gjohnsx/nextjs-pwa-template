@@ -12,9 +12,9 @@ enum SheetDestination: String, Identifiable {
 
     var detents: Set<PresentationDetent> {
         switch self {
-        case .paywall:
+        case .paywall, .tips:
             return [.large]
-        case .practice, .rate, .tips:
+        case .practice, .rate:
             return [.medium, .large]
         }
     }
