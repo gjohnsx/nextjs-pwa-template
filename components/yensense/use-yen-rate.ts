@@ -10,9 +10,14 @@ import {
   getEffectiveRate,
 } from "./currency";
 
-type FrankfurterRateResponse = {
-  date?: string;
-  rate?: number;
+const RATE_REFRESH_ENDPOINT = "/api/rates/jpy-usd";
+const BACKGROUND_RATE_REFRESH_INTERVAL_MS = 12 * 60 * 60 * 1000;
+
+type RateSnapshotResponse = {
+  usdPerYen?: number;
+  yenPerUsd?: number;
+  sourceDate?: string | null;
+  fetchedAt?: number;
 };
 
 function readStoredRate(): StoredRate {
@@ -49,23 +54,29 @@ function writeStoredRate(rate: StoredRate) {
   window.localStorage.setItem(RATE_STORAGE_KEY, JSON.stringify(rate));
 }
 
+function shouldRefreshInBackground(rate: StoredRate) {
+  if (!rate.liveYenPerUsd || !rate.fetchedAt) {
+    return true;
+  }
+
+  return Date.now() - rate.fetchedAt > BACKGROUND_RATE_REFRESH_INTERVAL_MS;
+}
+
 export function useYenRate() {
   const [storedRate, setStoredRate] = useState<StoredRate>(defaultStoredRate);
-  const [status, setStatus] = useState<RateStatus>("loading");
+  const [status, setStatus] = useState<RateStatus>("fallback");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const cachedRate = readStoredRate();
-    setStoredRate(cachedRate);
-    setStatus(cachedRate.liveYenPerUsd ? "cached" : "fallback");
-  }, []);
+  const refreshRate = useCallback(async (options?: { silent?: boolean }) => {
+    const isSilent = options?.silent ?? false;
 
-  const refreshRate = useCallback(async () => {
-    setStatus("loading");
-    setErrorMessage(null);
+    if (!isSilent) {
+      setStatus("loading");
+      setErrorMessage(null);
+    }
 
     try {
-      const response = await fetch("https://api.frankfurter.dev/v2/rate/JPY/USD", {
+      const response = await fetch(RATE_REFRESH_ENDPOINT, {
         cache: "no-store",
       });
 
@@ -73,18 +84,24 @@ export function useYenRate() {
         throw new Error("Rate request failed.");
       }
 
-      const data = (await response.json()) as FrankfurterRateResponse;
-      const usdPerYen = data.rate;
-      if (typeof usdPerYen !== "number" || usdPerYen <= 0) {
+      const data = (await response.json()) as RateSnapshotResponse;
+      const usdPerYen = data.usdPerYen;
+      const yenPerUsd = data.yenPerUsd;
+      if (
+        typeof usdPerYen !== "number" ||
+        usdPerYen <= 0 ||
+        typeof yenPerUsd !== "number" ||
+        yenPerUsd <= 0
+      ) {
         throw new Error("Rate response was missing USD.");
       }
 
       setStoredRate((currentRate) => {
         const nextRate: StoredRate = {
           liveUsdPerYen: usdPerYen,
-          liveYenPerUsd: 1 / usdPerYen,
-          sourceDate: data.date ?? null,
-          fetchedAt: Date.now(),
+          liveYenPerUsd: yenPerUsd,
+          sourceDate: data.sourceDate ?? null,
+          fetchedAt: typeof data.fetchedAt === "number" ? data.fetchedAt : Date.now(),
           manualYenPerUsd: currentRate.manualYenPerUsd,
         };
         writeStoredRate(nextRate);
@@ -94,6 +111,12 @@ export function useYenRate() {
     } catch {
       const cachedRate = readStoredRate();
       setStoredRate(cachedRate);
+
+      if (isSilent) {
+        setStatus(cachedRate.liveYenPerUsd ? "cached" : "fallback");
+        return;
+      }
+
       setStatus(cachedRate.liveYenPerUsd ? "cached" : "error");
       setErrorMessage(
         cachedRate.liveYenPerUsd
@@ -104,7 +127,19 @@ export function useYenRate() {
   }, []);
 
   useEffect(() => {
-    void refreshRate();
+    const cachedRate = readStoredRate();
+    setStoredRate(cachedRate);
+    setStatus(cachedRate.liveYenPerUsd ? "cached" : "fallback");
+
+    if (!shouldRefreshInBackground(cachedRate)) {
+      return;
+    }
+
+    const refreshTimer = window.setTimeout(() => {
+      void refreshRate({ silent: true });
+    }, 750);
+
+    return () => window.clearTimeout(refreshTimer);
   }, [refreshRate]);
 
   const setManualYenPerUsd = useCallback((yenPerUsd: number | null) => {
