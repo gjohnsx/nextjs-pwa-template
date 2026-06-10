@@ -24,6 +24,10 @@
 - What's New: Initial release.
 - Copyright: 2026 Gregory Johns
 
+## Version 1.0.1
+
+- What's New: Polishes the Tip Jar with clearer support options, richer artwork, and smoother layout details.
+
 ## Screenshots
 
 - 01 Converter: Yen to USD instantly / Add up your shopping
@@ -45,8 +49,8 @@
 
 ## App Store Connect Tasks
 
-- Paid Applications agreement: Currently `New`; accept before selling IAPs.
-- Apple Small Business Program: Apply/confirm enrollment before sales.
-- IAP products: None are currently created; create the 4 products above with matching IDs, prices, display names, and review screenshots.
-- Version review state: iOS 1.0 is already `Waiting for Review`; remove from review or use a follow-up version before submitting the first IAP.
+- IAP products: All 4 products above are approved in App Store Connect.
+- Version 1.0: Ready for Distribution.
+- Version 1.0.1: Build `5` uses the centered app icon and should replace build `4` in the draft App Review submission.
+- App Review: Draft submission is ready; click `Submit for Review` when ready to send it to Apple.
 - Privacy label: Data Not Collected; Tracking: No.
