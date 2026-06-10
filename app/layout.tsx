@@ -6,6 +6,7 @@ import {
   Shippori_Mincho,
 } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { APPLE_APP_ID, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const zineSerif = Shippori_Mincho({
@@ -30,13 +31,17 @@ const zinePixel = DotGothic16({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Yen Sense",
     template: "%s | Yen Sense",
   },
   description:
-    "A fast Japan travel PWA for converting yen to USD and practicing mental exchange-rate estimates.",
+    "Convert yen to USD instantly and build mental exchange-rate sense for your Japan trip. Free on the web, and on the App Store for iPhone with offline rates and practice.",
   applicationName: "Yen Sense",
+  itunes: {
+    appId: APPLE_APP_ID,
+  },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [

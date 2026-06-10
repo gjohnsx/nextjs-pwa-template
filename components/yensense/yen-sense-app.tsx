@@ -6,11 +6,10 @@ import {
   useMemo,
   useState,
 } from "react";
+import Link from "next/link";
 import {
   Brain,
   Check,
-  ChevronLeft,
-  ChevronRight,
   ChevronsRight,
   CircleX,
   Delete,
@@ -22,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { AppStoreBadge } from "./app-store-badge";
 import {
   convertYenToUsd,
   FALLBACK_YEN_PER_USD,
@@ -38,24 +38,6 @@ import { useQuizProgress, type QuizResult } from "./use-quiz-progress";
 import { useYenRate } from "./use-yen-rate";
 
 type DrawerView = "practice" | "rate" | "phone";
-
-const QUICK_AMOUNT_SETS = [
-  {
-    label: "Small",
-    note: "Konbini math",
-    amounts: [25, 50, 100, 500],
-  },
-  {
-    label: "Meals",
-    note: "Cafes and transit",
-    amounts: [500, 780, 1200, 2300],
-  },
-  {
-    label: "Trip",
-    note: "Shopping and tickets",
-    amounts: [5000, 10000, 20000, 50000],
-  },
-];
 
 const STATUS_LABELS: Record<RateStatus, string> = {
   loading: "Updating",
@@ -517,12 +499,10 @@ export function YenSenseApp() {
   const [storedYenTotal, setStoredYenTotal] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerView, setDrawerView] = useState<DrawerView>("practice");
-  const [quickSetIndex, setQuickSetIndex] = useState(0);
   const rate = useYenRate();
   const currentYenEntry = parseYenInput(yenInput);
   const yenAmount = Math.min(storedYenTotal + currentYenEntry, MAX_YEN_AMOUNT);
   const usdAmount = convertYenToUsd(yenAmount, rate.effectiveRate.yenPerUsd);
-  const quickSet = QUICK_AMOUNT_SETS[quickSetIndex];
   const statusLabel = formatRateStatus({
     isManual: rate.effectiveRate.isManual,
     status: rate.status,
@@ -578,15 +558,6 @@ export function YenSenseApp() {
   const clearYen = useCallback(() => {
     setYenInput("");
     setStoredYenTotal(0);
-  }, []);
-
-  const stepQuickSet = useCallback((direction: -1 | 1) => {
-    setQuickSetIndex((currentIndex) =>
-      Math.min(
-        QUICK_AMOUNT_SETS.length - 1,
-        Math.max(0, currentIndex + direction),
-      ),
-    );
   }, []);
 
   useEffect(() => {
@@ -790,42 +761,6 @@ export function YenSenseApp() {
               </div>
             ) : null}
 
-            <div className="grid grid-cols-[1fr_auto] gap-2">
-              <div>
-                <p className="zine-meta text-[10px] text-[var(--muted-ink)]">
-                  Quick adds
-                </p>
-                <p className="text-xs leading-tight text-[var(--muted-ink)]">
-                  {quickSet.note}
-                </p>
-              </div>
-              <div className="grid grid-cols-[32px_108px_32px] overflow-hidden rounded-[8px] border border-[var(--line)] bg-[var(--field)]">
-                <button
-                  type="button"
-                  aria-label="Use smaller quick amounts"
-                  title="Smaller amounts"
-                  disabled={quickSetIndex === 0}
-                  onClick={() => stepQuickSet(-1)}
-                  className="grid place-items-center border-r border-[var(--line)] text-[var(--muted-ink)] transition-colors hover:bg-[var(--sage)] hover:text-[var(--ink)] disabled:text-[var(--faint-ink)]"
-                >
-                  <ChevronLeft className="size-4" />
-                </button>
-                <span className="zine-meta grid place-items-center border-r border-[var(--line)] px-1 text-center text-[9px] text-[var(--muted-ink)]">
-                  {quickSet.label}
-                </span>
-                <button
-                  type="button"
-                  aria-label="Use larger quick amounts"
-                  title="Larger amounts"
-                  disabled={quickSetIndex === QUICK_AMOUNT_SETS.length - 1}
-                  onClick={() => stepQuickSet(1)}
-                  className="grid place-items-center text-[var(--muted-ink)] transition-colors hover:bg-[var(--sage)] hover:text-[var(--ink)] disabled:text-[var(--faint-ink)]"
-                >
-                  <ChevronRight className="size-4" />
-                </button>
-              </div>
-            </div>
-
             <div className="grid grid-cols-4 gap-2">
               {KEYPAD_ROWS.map((row) =>
                 row.map((key) => {
@@ -898,6 +833,39 @@ export function YenSenseApp() {
               </p>
             ) : null}
           </footer>
+
+          <section className="grid gap-3 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] p-4">
+            <PanelMeta issue="iPhone" label="App Store" />
+            <p className="text-sm leading-6 text-[var(--muted-ink)]">
+              Yen Sense for iOS: offline rates, the full practice deck, and a
+              home-screen rate widget.
+            </p>
+            <AppStoreBadge location="home" className="justify-self-start" />
+          </section>
+
+          <section className="grid gap-2 rounded-[8px] border border-[var(--line)] bg-[var(--panel)] px-3 py-3">
+            <PanelMeta issue="Field guides" label="Japan money" />
+            <nav
+              aria-label="Japan travel money guides"
+              className="flex flex-wrap gap-x-3 gap-y-1"
+            >
+              {[
+                ["/guide/ramen-cost-in-japan", "Ramen prices"],
+                ["/guide/japan-trip-daily-budget", "Daily budget"],
+                ["/guide/cash-in-japan", "Cash in Japan"],
+                ["/guide/vending-machines-japan", "Vending machines"],
+                ["/guide", "All guides"],
+              ].map(([href, label]) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="zine-meta text-[10px] font-bold text-[var(--accent-pop)] underline"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </section>
         </div>
       </section>
 
