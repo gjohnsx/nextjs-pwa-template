@@ -3,18 +3,69 @@ import SwiftUI
 struct PracticeHistoryView: View {
     @ObservedObject var quizStore: QuizStore
 
+    @State private var showResetConfirmation = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
+                summaryGrid
+
                 ForEach(QuizAmount.all) { amount in
                     row(for: amount, stats: quizStore.stats(for: amount.id))
                 }
+
+                Button(role: .destructive) {
+                    showResetConfirmation = true
+                } label: {
+                    Label("Reset all progress", systemImage: "arrow.counterclockwise")
+                        .foregroundStyle(Color.ysAccent)
+                }
+                .buttonStyle(YenButtonStyle())
+                .padding(.top, 8)
             }
             .padding(18)
         }
         .background(Color.ysPaper)
         .navigationTitle("Progress")
         .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog(
+            "Reset all practice progress?",
+            isPresented: $showResetConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Reset everything", role: .destructive) {
+                quizStore.reset()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Box levels, streaks, and history go back to zero. This can't be undone.")
+        }
+    }
+
+    private var summaryGrid: some View {
+        let summary = quizStore.summary
+        let cells: [(String, Int)] = [
+            ("due", summary.dueNow),
+            ("seen", summary.practiced),
+            ("solid", summary.mastered),
+            ("streak", summary.bestStreak),
+        ]
+
+        return HStack(spacing: 0) {
+            ForEach(cells, id: \.0) { label, value in
+                VStack(spacing: 4) {
+                    Text("\(value)")
+                        .font(.system(.title2, design: .monospaced).weight(.bold))
+                        .foregroundStyle(Color.ysInk)
+                    Text(label)
+                        .font(.caption2.weight(.bold))
+                        .textCase(.uppercase)
+                        .foregroundStyle(Color.ysMutedInk)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .panelCard()
     }
 
     private func row(for amount: QuizAmount, stats: QuizStats) -> some View {

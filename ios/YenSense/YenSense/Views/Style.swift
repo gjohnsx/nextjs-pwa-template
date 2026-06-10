@@ -11,13 +11,16 @@ extension Color {
     static let ysAccent = Color(red: 201 / 255, green: 69 / 255, blue: 51 / 255)
     static let ysAccentSoft = Color(red: 242 / 255, green: 215 / 255, blue: 205 / 255)
     static let ysSage = Color(red: 220 / 255, green: 233 / 255, blue: 226 / 255)
+    static let ysSageDeep = Color(red: 122 / 255, green: 160 / 255, blue: 137 / 255)
 }
 
 struct PanelCard: ViewModifier {
+    var background = Color.ysPanel
+
     func body(content: Content) -> some View {
         content
             .padding(16)
-            .background(Color.ysPanel)
+            .background(background)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.ysLine, lineWidth: 1)
@@ -45,8 +48,8 @@ struct YenButtonStyle: ButtonStyle {
 }
 
 extension View {
-    func panelCard() -> some View {
-        modifier(PanelCard())
+    func panelCard(background: Color = .ysPanel) -> some View {
+        modifier(PanelCard(background: background))
     }
 }
 

@@ -1,7 +1,6 @@
 import SwiftUI
 
 enum SheetDestination: String, Identifiable {
-    case practice
     case rate
     case paywall
     case tips
@@ -14,7 +13,7 @@ enum SheetDestination: String, Identifiable {
         switch self {
         case .paywall, .tips:
             return [.large]
-        case .practice, .rate:
+        case .rate:
             return [.medium, .large]
         }
     }
@@ -25,21 +24,24 @@ struct RootView: View {
     @StateObject private var quizStore = QuizStore()
     @StateObject private var store = StoreManager()
     @State private var sheetDestination: SheetDestination?
+    @State private var showPractice = false
 
     var body: some View {
-        ConverterView(rateStore: rateStore, sheetDestination: $sheetDestination)
+        ConverterView(rateStore: rateStore, sheetDestination: $sheetDestination, showPractice: $showPractice)
             .environmentObject(store)
+            .fullScreenCover(isPresented: $showPractice) {
+                NavigationStack {
+                    PracticeView(
+                        quizStore: quizStore,
+                        yenPerUnit: rateStore.effectiveRate.yenPerUnit,
+                        quote: rateStore.effectiveRate.quote
+                    )
+                }
+                .environmentObject(store)
+            }
             .sheet(item: $sheetDestination) { destination in
                 NavigationStack {
                     switch destination {
-                    case .practice:
-                        PracticeView(
-                            quizStore: quizStore,
-                            yenPerUnit: rateStore.effectiveRate.yenPerUnit,
-                            quote: rateStore.effectiveRate.quote,
-                            sheetDestination: $sheetDestination
-                        )
-                        .environmentObject(store)
                     case .rate:
                         RateSettingsView(
                             rateStore: rateStore,

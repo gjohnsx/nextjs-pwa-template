@@ -27,6 +27,14 @@
 		2B56A61F2CCB4000A8D6F0A3 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1A3 /* PaywallView.swift */; };
 		2B56A61F2CCB4000A8D6F0A4 /* TipJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1A4 /* TipJarView.swift */; };
 		2B56A61F2CCB4000A8D6F0A5 /* PracticeHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F1A5 /* PracticeHistoryView.swift */; };
+		2B56A61F2CCB4000A8D6F411 /* PracticeRound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F401 /* PracticeRound.swift */; };
+		2B56A61F2CCB4000A8D6F412 /* GuessInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F402 /* GuessInput.swift */; };
+		2B56A61F2CCB4000A8D6F413 /* PracticeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F403 /* PracticeCardView.swift */; };
+		2B56A61F2CCB4000A8D6F414 /* GuessKeypad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F404 /* GuessKeypad.swift */; };
+		2B56A61F2CCB4000A8D6F415 /* AccuracyMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F405 /* AccuracyMeter.swift */; };
+		2B56A61F2CCB4000A8D6F416 /* RoundSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F406 /* RoundSummaryView.swift */; };
+		2B56A61F2CCB4000A8D6F418 /* PracticeRoundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F408 /* PracticeRoundTests.swift */; };
+		2B56A61F2CCB4000A8D6F419 /* GuessInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F409 /* GuessInputTests.swift */; };
 		2B56A61F2CCB4000A8D6F206 /* YenSenseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F205 /* YenSenseTests.swift */; };
 		2B56A61F2CCB4000A8D6F210 /* StoreProductsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F211 /* StoreProductsTests.swift */; };
 		2B56A61F2CCB4000A8D6F216 /* QuizAmountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B56A61F2CCB4000A8D6F217 /* QuizAmountTests.swift */; };
@@ -93,6 +101,14 @@
 		2B56A61F2CCB4000A8D6F1A3 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		2B56A61F2CCB4000A8D6F1A4 /* TipJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarView.swift; sourceTree = "<group>"; };
 		2B56A61F2CCB4000A8D6F1A5 /* PracticeHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeHistoryView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F401 /* PracticeRound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeRound.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F402 /* GuessInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuessInput.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F403 /* PracticeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeCardView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F404 /* GuessKeypad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuessKeypad.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F405 /* AccuracyMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyMeter.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F406 /* RoundSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundSummaryView.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F408 /* PracticeRoundTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeRoundTests.swift; sourceTree = "<group>"; };
+		2B56A61F2CCB4000A8D6F409 /* GuessInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuessInputTests.swift; sourceTree = "<group>"; };
 		2B56A61F2CCB4000A8D6F10D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2B56A61F2CCB4000A8D6F10E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		2B56A61F2CCB4000A8D6F21D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -172,6 +188,8 @@
 				2B56A61F2CCB4000A8D6F103 /* QuizAmount.swift */,
 				2B56A61F2CCB4000A8D6F1B1 /* SupportedCurrency.swift */,
 				2B56A61F2CCB4000A8D6F104 /* QuizProgress.swift */,
+				2B56A61F2CCB4000A8D6F401 /* PracticeRound.swift */,
+				2B56A61F2CCB4000A8D6F402 /* GuessInput.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -197,12 +215,24 @@
 				2B56A61F2CCB4000A8D6F109 /* RootView.swift */,
 				2B56A61F2CCB4000A8D6F10A /* ConverterView.swift */,
 				2B56A61F2CCB4000A8D6F10B /* RateSettingsView.swift */,
-				2B56A61F2CCB4000A8D6F10C /* PracticeView.swift */,
+				2B56A61F2CCB4000A8D6F407 /* Practice */,
 				2B56A61F2CCB4000A8D6F1A5 /* PracticeHistoryView.swift */,
 				2B56A61F2CCB4000A8D6F1A3 /* PaywallView.swift */,
 				2B56A61F2CCB4000A8D6F1A4 /* TipJarView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		2B56A61F2CCB4000A8D6F407 /* Practice */ = {
+			isa = PBXGroup;
+			children = (
+				2B56A61F2CCB4000A8D6F10C /* PracticeView.swift */,
+				2B56A61F2CCB4000A8D6F403 /* PracticeCardView.swift */,
+				2B56A61F2CCB4000A8D6F404 /* GuessKeypad.swift */,
+				2B56A61F2CCB4000A8D6F405 /* AccuracyMeter.swift */,
+				2B56A61F2CCB4000A8D6F406 /* RoundSummaryView.swift */,
+			);
+			path = Practice;
 			sourceTree = "<group>";
 		};
 		2B56A61F2CCB4000A8D6F040 /* Products */ = {
@@ -223,6 +253,8 @@
 				2B56A61F2CCB4000A8D6F217 /* QuizAmountTests.swift */,
 				2B56A61F2CCB4000A8D6F219 /* QuizStoreDeckTests.swift */,
 				2B56A61F2CCB4000A8D6F21B /* CurrencyModelTests.swift */,
+				2B56A61F2CCB4000A8D6F408 /* PracticeRoundTests.swift */,
+				2B56A61F2CCB4000A8D6F409 /* GuessInputTests.swift */,
 			);
 			path = YenSenseTests;
 			sourceTree = "<group>";
@@ -390,6 +422,12 @@
 				2B56A61F2CCB4000A8D6F0A3 /* PaywallView.swift in Sources */,
 				2B56A61F2CCB4000A8D6F0A4 /* TipJarView.swift in Sources */,
 				2B56A61F2CCB4000A8D6F0A5 /* PracticeHistoryView.swift in Sources */,
+				2B56A61F2CCB4000A8D6F411 /* PracticeRound.swift in Sources */,
+				2B56A61F2CCB4000A8D6F412 /* GuessInput.swift in Sources */,
+				2B56A61F2CCB4000A8D6F413 /* PracticeCardView.swift in Sources */,
+				2B56A61F2CCB4000A8D6F414 /* GuessKeypad.swift in Sources */,
+				2B56A61F2CCB4000A8D6F415 /* AccuracyMeter.swift in Sources */,
+				2B56A61F2CCB4000A8D6F416 /* RoundSummaryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,6 +440,8 @@
 				2B56A61F2CCB4000A8D6F216 /* QuizAmountTests.swift in Sources */,
 				2B56A61F2CCB4000A8D6F218 /* QuizStoreDeckTests.swift in Sources */,
 				2B56A61F2CCB4000A8D6F21A /* CurrencyModelTests.swift in Sources */,
+				2B56A61F2CCB4000A8D6F418 /* PracticeRoundTests.swift in Sources */,
+				2B56A61F2CCB4000A8D6F419 /* GuessInputTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

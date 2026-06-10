@@ -6,14 +6,11 @@ final class QuizStore: ObservableObject {
     private let defaults: UserDefaults
 
     @Published private(set) var progress: QuizProgress
-    @Published private(set) var currentAmount: QuizAmount
     @Published private(set) var isPro = false
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        let storedProgress = Self.readProgress(from: defaults, key: storageKey)
-        self.progress = storedProgress
-        self.currentAmount = Self.selectAmount(from: storedProgress, deck: QuizAmount.deck(isPro: false))
+        self.progress = Self.readProgress(from: defaults, key: storageKey)
     }
 
     var summary: QuizSummary {
@@ -34,17 +31,48 @@ final class QuizStore: ObservableObject {
         }
 
         isPro = value
-        currentAmount = Self.selectAmount(from: progress, deck: QuizAmount.deck(isPro: isPro))
     }
 
     func stats(for id: String) -> QuizStats {
         progress[id] ?? .empty
     }
 
-    func recordAnswer(guessUSD: Double, exactUSD: Double) -> QuizResult {
+    /// Picks the cards for a practice round: due cards first, then lowest box,
+    /// earliest due, fewest attempts — shuffled for presentation variety.
+    func drawRound(of count: Int = PracticeRound.standardLength) -> [QuizAmount] {
+        let deck = QuizAmount.deck(isPro: isPro)
         let now = Date()
-        let currentStats = progress[currentAmount.id] ?? .empty
-        let errorPercent = exactUSD > 0 ? abs(guessUSD - exactUSD) / exactUSD * 100 : 0
+        let picked = deck
+            .map { amount in
+                (amount: amount, stats: progress[amount.id] ?? .empty)
+            }
+            .sorted { first, second in
+                let firstDue = first.stats.nextDueAt <= now
+                let secondDue = second.stats.nextDueAt <= now
+                if firstDue != secondDue {
+                    return firstDue
+                }
+
+                if first.stats.boxLevel != second.stats.boxLevel {
+                    return first.stats.boxLevel < second.stats.boxLevel
+                }
+
+                if first.stats.nextDueAt != second.stats.nextDueAt {
+                    return first.stats.nextDueAt < second.stats.nextDueAt
+                }
+
+                return first.stats.attempts < second.stats.attempts
+            }
+            .prefix(max(0, min(count, deck.count)))
+            .map(\.amount)
+
+        return picked.shuffled()
+    }
+
+    func recordAnswer(for amount: QuizAmount, guess: Double, exact: Double) -> QuizResult {
+        let now = Date()
+        let currentStats = progress[amount.id] ?? .empty
+        let errorPercent = exact > 0 ? abs(guess - exact) / exact * 100 : 0
         let rating = QuizScoring.rating(for: errorPercent)
         let nextBoxLevel = rating == .repeatPractice
             ? 1
@@ -58,25 +86,20 @@ final class QuizStore: ObservableObject {
             nextDueAt: now.addingTimeInterval(dueInterval)
         )
 
-        progress[currentAmount.id] = nextStats
+        progress[amount.id] = nextStats
         writeProgress(progress)
 
         return QuizResult(
-            exactUSD: exactUSD,
+            exactUSD: exact,
             errorPercent: errorPercent,
             rating: rating,
             stats: nextStats
         )
     }
 
-    func nextQuestion(excluding id: String? = nil) {
-        currentAmount = Self.selectAmount(from: progress, deck: QuizAmount.deck(isPro: isPro), excluding: id)
-    }
-
     func reset() {
         progress = [:]
         writeProgress(progress)
-        currentAmount = Self.selectAmount(from: progress, deck: QuizAmount.deck(isPro: isPro))
     }
 
     private static func readProgress(from defaults: UserDefaults, key: String) -> QuizProgress {
@@ -86,36 +109,6 @@ final class QuizStore: ObservableObject {
         }
 
         return progress
-    }
-
-    private static func selectAmount(
-        from progress: QuizProgress,
-        deck: [QuizAmount],
-        excluding excludedID: String? = nil
-    ) -> QuizAmount {
-        let now = Date()
-        let rows = deck
-            .filter { $0.id != excludedID }
-            .map { amount in
-                (amount: amount, stats: progress[amount.id] ?? .empty)
-            }
-        let candidates = rows.isEmpty
-            ? deck.map { amount in (amount: amount, stats: progress[amount.id] ?? .empty) }
-            : rows
-        let due = candidates.filter { $0.stats.nextDueAt <= now }
-        let pool = due.isEmpty ? candidates : due
-
-        return pool.sorted { first, second in
-            if first.stats.boxLevel != second.stats.boxLevel {
-                return first.stats.boxLevel < second.stats.boxLevel
-            }
-
-            if first.stats.nextDueAt != second.stats.nextDueAt {
-                return first.stats.nextDueAt < second.stats.nextDueAt
-            }
-
-            return first.stats.attempts < second.stats.attempts
-        }[0].amount
     }
 
     private func writeProgress(_ progress: QuizProgress) {

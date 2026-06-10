@@ -17,6 +17,7 @@ private let keypadKeys: [KeypadKey] = [
 struct ConverterView: View {
     @ObservedObject var rateStore: RateStore
     @Binding var sheetDestination: SheetDestination?
+    @Binding var showPractice: Bool
 
     @Environment(\.requestReview) private var requestReview
 
@@ -217,7 +218,7 @@ struct ConverterView: View {
 
             HStack(spacing: 8) {
                 Button {
-                    sheetDestination = .practice
+                    showPractice = true
                 } label: {
                     Label("Practice", systemImage: "brain.head.profile")
                 }
@@ -340,6 +341,6 @@ struct ConverterView: View {
 }
 
 #Preview {
-    ConverterView(rateStore: RateStore(), sheetDestination: .constant(nil))
+    ConverterView(rateStore: RateStore(), sheetDestination: .constant(nil), showPractice: .constant(false))
 }
 
