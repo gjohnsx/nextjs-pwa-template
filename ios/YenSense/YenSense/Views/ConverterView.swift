@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 private enum KeypadKey: Hashable {
     case digit(String)
@@ -17,8 +18,12 @@ struct ConverterView: View {
     @ObservedObject var rateStore: RateStore
     @Binding var sheetDestination: SheetDestination?
 
+    @Environment(\.requestReview) private var requestReview
+
     @State private var yenInput = ""
     @State private var storedYenTotal = 0
+
+    private let reviewPrompter = ReviewPrompter()
 
     private var currentYenEntry: Int {
         CurrencyMath.parseYenInput(yenInput)
@@ -277,12 +282,14 @@ struct ConverterView: View {
     }
 
     private func appendYenDigits(_ digits: String) {
+        let previousAmount = yenAmount
         let currentDigits = yenInput.filter { $0.isNumber }
         let nextDigits = String((currentDigits + digits)
             .drop { $0 == "0" }
             .prefix(CurrencyMath.digitLimit))
         let nextAmount = Int(nextDigits) ?? 0
         yenInput = CurrencyText.yenInput(nextAmount)
+        registerConverterUseIfStarted(previousAmount: previousAmount)
     }
 
     private func backspaceYen() {
@@ -298,8 +305,23 @@ struct ConverterView: View {
     }
 
     private func addYen(_ amount: Int) {
+        let previousAmount = yenAmount
         storedYenTotal = min(yenAmount + amount, CurrencyMath.maxYenAmount)
         yenInput = ""
+        registerConverterUseIfStarted(previousAmount: previousAmount)
+    }
+
+    /// Counts a converter use whenever a fresh conversion starts (the entered
+    /// amount goes from zero to nonzero), so a single conversion isn't
+    /// double-counted as the user keeps typing.
+    private func registerConverterUseIfStarted(previousAmount: Int) {
+        guard previousAmount == 0, yenAmount > 0 else {
+            return
+        }
+
+        reviewPrompter.registerEvent(.converterUsed) {
+            requestReview()
+        }
     }
 
     private func commitAddition() {

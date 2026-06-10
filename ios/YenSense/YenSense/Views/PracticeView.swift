@@ -14,6 +14,8 @@ struct PracticeView: View {
     @State private var result: QuizResult?
     @State private var showHistory = false
 
+    private let reviewPrompter = ReviewPrompter()
+
     private var exactAmount: Double {
         CurrencyMath.convertYen(quizStore.currentAmount.yen, yenPerUnit: yenPerUnit)
     }
@@ -182,34 +184,11 @@ struct PracticeView: View {
             return
         }
 
-        let answeredResult = quizStore.recordAnswer(guessUSD: guess, exactUSD: exactAmount)
-        result = answeredResult
-        maybeRequestReview(after: answeredResult)
-    }
-
-    /// Ask for an App Store review once per install, after the user has had a
-    /// few successful Practice sessions. Guarded by a UserDefaults counter.
-    private func maybeRequestReview(after result: QuizResult) {
-        guard result.rating != .repeatPractice else {
-            return
-        }
-
-        let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: Self.reviewRequestedKey) else {
-            return
-        }
-
-        let count = defaults.integer(forKey: Self.successfulSessionCountKey) + 1
-        defaults.set(count, forKey: Self.successfulSessionCountKey)
-
-        if count >= 3 {
-            defaults.set(true, forKey: Self.reviewRequestedKey)
+        result = quizStore.recordAnswer(guessUSD: guess, exactUSD: exactAmount)
+        reviewPrompter.registerEvent(.practiceSessionCompleted) {
             requestReview()
         }
     }
-
-    private static let successfulSessionCountKey = "practice.successfulSessionCount"
-    private static let reviewRequestedKey = "practice.reviewRequested"
 
     private func nextQuestion() {
         quizStore.nextQuestion(excluding: quizStore.currentAmount.id)
